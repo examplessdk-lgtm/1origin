@@ -153,7 +153,7 @@ export function useOriginWorkspace() {
       const data = await response.json()
       if (data.encoding !== 'base64' || typeof data.content !== 'string') throw new Error('This file cannot be displayed as text.')
       const binary = atob(data.content.replace(/\s/g, ''))
-      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0))
+      const bytes = Uint8Array.from(binary.split(''), char => char.charCodeAt(0))
       state.value.contents[path] = new TextDecoder().decode(bytes)
     } catch (error: any) {
       state.value.error = error instanceof Error ? error.message : 'File load failed.'
