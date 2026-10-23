@@ -43,3 +43,14 @@ neon buckets list
 **Not implemented:** deletion, pagination after first 30 keys, storage quotas, malware scanning, public-sharing rules, object lifecycle, AWS/Neon automatic synchronization, GitHub import/build execution. Do not release public uploads until these are implemented.
 
 References: https://neon.com/docs/storage/overview and https://neon.com/docs/reference/neon-ts
+
+## Deployed development foundation (2026-10-23)
+
+Neon project `wispy-butterfly-22623578` (Singapore), branch `main` has a private bucket `origin-files` and Function `originfiles`.
+
+Verified Function URL: `https://br-gentle-water-b33tp3hm-originfiles.compute.c-4.ap-southeast-1.aws.neon.tech/`
+
+Verified `GET /health` returns HTTP 200 with `{"service":"origin-files","configured":false}`.
+Verified unauthenticated `GET /files` returns HTTP 503 `{"error":"Service not configured"}`. This is intentional: there is no deployed Origin Cognito pool yet. Do not expose uploads or set invalid/mock Cognito values to bypass access control.
+
+The function URL is public metadata, not a secret. The storage credentials pulled by `neon deploy` into `.env.local` are secrets and must remain uncommitted.
