@@ -1,0 +1,86 @@
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
+@import url("https://fonts.googleapis.com/css2?family=Geist%20Mono:wght@300;400;500;600;700;800&display=swap");
+
+@theme {
+  --font-sans: 'Public Sans', sans-serif;
+}
+
+:root {
+  --ui-bg: white;
+}
+
+.dark {
+  --ui-bg: black;
+}
+
+html.dark .tiptap .shiki,
+html.dark .tiptap .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--ui-bg-muted) !important;
+}
+
+/* Collaboration carets */
+.collaboration-carets__caret {
+  border-left: 1px solid #0d0d0d;
+  border-right: 1px solid #0d0d0d;
+  margin-left: -1px;
+  margin-right: -1px;
+  pointer-events: none;
+  position: relative;
+  word-break: normal;
+}
+
+.collaboration-carets__label {
+  border-radius: 3px 3px 3px 0;
+  color: #0d0d0d;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  left: -1px;
+  line-height: normal;
+  padding: 0.1rem 0.3rem;
+  position: absolute;
+  top: -1.4em;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* ORIGIN THEME — GENERATED START: do not edit here */
+/*
+ * Origin shared Nuxt UI tokens.
+ * Single source of truth; generated into every template by scripts/sync-theme.mjs.
+ * The Tailwind and @nuxt/ui imports remain owned by each original template.
+ */
+@theme {
+  --font-mono: 'Geist Mono', monospace;
+}
+
+:root {
+  --ui-radius: 0.5rem;
+  --ui-primary: black;
+}
+
+:root, .light {
+  --ui-text-inverted: var(--ui-color-neutral-50);
+  --ui-bg-muted: var(--ui-color-neutral-100);
+  --ui-bg-elevated: var(--ui-color-neutral-100);
+  --ui-bg-accented: var(--ui-color-neutral-200);
+  --ui-text: var(--ui-color-neutral-900);
+  --ui-text-highlighted: var(--ui-color-neutral-950);
+  --ui-bg: var(--ui-color-neutral-50);
+}
+
+.dark {
+  --ui-bg-inverted: var(--ui-color-neutral-50);
+  --ui-border-inverted: var(--ui-color-neutral-50);
+  --ui-bg: var(--ui-color-neutral-950);
+  --ui-bg-muted: var(--ui-color-neutral-900);
+  --ui-bg-elevated: var(--ui-color-neutral-900);
+  --ui-bg-accented: var(--ui-color-neutral-800);
+  --ui-text: var(--ui-color-neutral-100);
+  --ui-text-highlighted: var(--ui-color-neutral-50);
+  --ui-primary: white;
+  --ui-text-inverted: var(--ui-color-neutral-900);
+}
+/* ORIGIN THEME — GENERATED END */

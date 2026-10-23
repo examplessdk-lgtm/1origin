@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import url("https://fonts.googleapis.com/css2?family=Geist%20Mono:wght@300;400;500;600;700;800&display=swap");
 
 :root {
   --origin-ground: #0e0e0e;
@@ -94,3 +95,42 @@ button { cursor: pointer; }
   .origin-statusbar .hide-phone { display:none; }
   .origin-page { padding:21px 14px 70px; }
 }
+
+/* ORIGIN THEME — GENERATED START: do not edit here */
+/*
+ * Origin shared Nuxt UI tokens.
+ * Single source of truth; generated into every template by scripts/sync-theme.mjs.
+ * The Tailwind and @nuxt/ui imports remain owned by each original template.
+ */
+@theme {
+  --font-mono: 'Geist Mono', monospace;
+}
+
+:root {
+  --ui-radius: 0.5rem;
+  --ui-primary: black;
+}
+
+:root, .light {
+  --ui-text-inverted: var(--ui-color-neutral-50);
+  --ui-bg-muted: var(--ui-color-neutral-100);
+  --ui-bg-elevated: var(--ui-color-neutral-100);
+  --ui-bg-accented: var(--ui-color-neutral-200);
+  --ui-text: var(--ui-color-neutral-900);
+  --ui-text-highlighted: var(--ui-color-neutral-950);
+  --ui-bg: var(--ui-color-neutral-50);
+}
+
+.dark {
+  --ui-bg-inverted: var(--ui-color-neutral-50);
+  --ui-border-inverted: var(--ui-color-neutral-50);
+  --ui-bg: var(--ui-color-neutral-950);
+  --ui-bg-muted: var(--ui-color-neutral-900);
+  --ui-bg-elevated: var(--ui-color-neutral-900);
+  --ui-bg-accented: var(--ui-color-neutral-800);
+  --ui-text: var(--ui-color-neutral-100);
+  --ui-text-highlighted: var(--ui-color-neutral-50);
+  --ui-primary: white;
+  --ui-text-inverted: var(--ui-color-neutral-900);
+}
+/* ORIGIN THEME — GENERATED END */

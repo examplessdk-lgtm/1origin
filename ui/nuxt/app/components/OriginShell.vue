@@ -8,6 +8,8 @@ const search = ref('')
 const pages = [
   {label:'Overview',to:'/',icon:'i-lucide-layout-dashboard',group:'Workspace'},
   {label:'Projects',to:'/projects',icon:'i-lucide-folder-git-2',group:'Workspace'},
+  {label:'Catalog',to:'/catalog',icon:'i-lucide-layout-grid',group:'Workspace'},
+  {label:'Loading',to:'/loading',icon:'i-lucide-loader-circle',group:'Workspace'},
   {label:'Deployments',to:'/deployments',icon:'i-lucide-rocket',group:'Workspace'},
   {label:'Storage',to:'/storage',icon:'i-lucide-hard-drive',group:'Infrastructure'},
   {label:'Environment',to:'/environment',icon:'i-lucide-key-round',group:'Infrastructure'},
