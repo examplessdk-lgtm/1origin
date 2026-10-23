@@ -22,7 +22,7 @@ ORIGIN_COGNITO_ISSUER=https://cognito-idp.ap-southeast-1.amazonaws.com/<cognito-
 ORIGIN_COGNITO_CLIENT_ID=<public-cognito-app-client-id>
 ```
 
-4. Review resource costs and linked branch; execute:
+4. Review resource costs and linked branch; execute. If Cognito is not deployed yet, you can omit all three ORIGIN_* variables; the Function will deploy but all file routes remain **disabled** (503) until configured:
 
 ```bash
 neon deploy --env .env.neon

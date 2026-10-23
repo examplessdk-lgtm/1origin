@@ -9,9 +9,11 @@ export default defineConfig({
       source: "./functions/origin-files.ts",
       env: {
         ORIGIN_BUCKET: "origin-files",
-        WEB_ORIGIN: process.env.ORIGIN_WEB_ORIGIN!,
-        COGNITO_ISSUER: process.env.ORIGIN_COGNITO_ISSUER!,
-        COGNITO_CLIENT_ID: process.env.ORIGIN_COGNITO_CLIENT_ID!,
+        // Missing Cognito configuration keeps all /files routes disabled.
+        // Deploy the Function first, then set these for an authenticated release.
+        ...(process.env.ORIGIN_WEB_ORIGIN ? { WEB_ORIGIN: process.env.ORIGIN_WEB_ORIGIN } : {}),
+        ...(process.env.ORIGIN_COGNITO_ISSUER ? { COGNITO_ISSUER: process.env.ORIGIN_COGNITO_ISSUER } : {}),
+        ...(process.env.ORIGIN_COGNITO_CLIENT_ID ? { COGNITO_CLIENT_ID: process.env.ORIGIN_COGNITO_CLIENT_ID } : {}),
       },
     },
   },
