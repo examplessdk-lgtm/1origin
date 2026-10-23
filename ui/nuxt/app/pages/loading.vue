@@ -1,42 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-const label = ref('Preparing workspace')
+import { computed, onMounted } from 'vue'
+const { state, hydrate } = useOriginWorkspace()
+onMounted(hydrate)
+const current = computed(() => state.value.busy ? 'Reading public GitHub repository' : 'Idle — no operation running')
 </script>
 <template>
-  <div class="origin-page">
-    <div class="eyebrow">WORKSPACE / COMPONENT GALLERY</div>
-    <h1 class="page-heading">Loading States<span class="text-[#e5e5e5]">.</span></h1>
-    <p class="page-subtitle">Reusable Nuxt UI loading components, following the same black/white theme as the official templates.</p>
-    <div class="source-note mt-7">UI demonstration only. These indicators do not reflect real builds, requests or deployment progress.</div>
-    <div class="mt-8 grid gap-4 lg:grid-cols-2">
-      <section class="border border-[#333] p-6">
-        <div class="eyebrow mb-5">01 / WORKSPACE BOOT</div>
-        <div class="flex min-h-56 flex-col items-center justify-center gap-5">
-          <UIcon name="i-lucide-loader-circle" class="size-9 animate-spin text-[#f0f0f0]" aria-hidden="true" />
-          <span class="mono text-[12px] text-[#d6d6d6]" role="status">{{ label }}</span>
-          <p class="mono text-[10px] muted">Status illustration — no active request</p>
+  <div class="origin-page max-w-[1050px]">
+    <div class="eyebrow">WORKSPACE / ACTIVITY</div>
+    <h1 class="page-heading">Loading &amp; activity<span class="text-white">.</span></h1>
+    <p class="page-subtitle">Actual import and file-loading state from the browser workspace. No fabricated build progress.</p>
+    <div class="mt-8 border border-[#343434] bg-[#111] p-7 sm:p-10">
+      <div class="flex items-start gap-4">
+        <UIcon :name="state.busy ? 'i-lucide-loader-circle' : 'i-lucide-circle-check'" class="size-6" :class="{ 'animate-spin': state.busy }" />
+        <div>
+          <h2 class="text-[16px] font-semibold">{{ current }}</h2>
+          <p class="muted text-[12px] mt-2">{{ state.repository?.fullName || 'No GitHub repository imported in this browser.' }}</p>
         </div>
-      </section>
-      <section class="border border-[#333] p-6">
-        <div class="eyebrow mb-5">02 / CONTENT SKELETON</div>
-        <div class="space-y-4" aria-label="Example page skeleton" aria-busy="true">
-          <USkeleton class="h-8 w-1/2 rounded-sm"/>
-          <USkeleton class="h-3 w-full rounded-sm"/>
-          <USkeleton class="h-3 w-4/5 rounded-sm"/>
-          <div class="mt-5 space-y-2">
-            <USkeleton v-for="i in 4" :key="i" class="h-10 w-full rounded-sm"/>
-          </div>
-        </div>
-      </section>
-      <section class="border border-[#333] p-6 lg:col-span-2">
-        <div class="eyebrow mb-4">03 / EMPTY DATA STATE</div>
-        <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
-          <UIcon name="i-lucide-package-open" class="size-8 muted"/>
-          <h2 class="text-[14px] font-medium">No workspace items yet</h2>
-          <p class="text-[12px] muted">Connect a repository after the UI design phase.</p>
-          <NuxtLink to="/catalog" class="mono mt-2 border border-[#999] px-4 py-2 text-[11px] hover:bg-[#282828]">Open template catalog →</NuxtLink>
-        </div>
-      </section>
+      </div>
+      <p v-if="state.error" role="alert" class="ide-notice ide-error mt-6">{{ state.error }}</p>
+      <p v-if="state.notice" role="status" class="ide-notice mt-6">{{ state.notice }}</p>
+      <div class="mt-9 flex flex-wrap gap-3">
+        <NuxtLink to="/workspace" class="ide-primary">Open workspace</NuxtLink>
+        <NuxtLink to="/import" class="ide-action !px-4 !py-2.5">Import repository</NuxtLink>
+        <NuxtLink to="/build" class="ide-action !px-4 !py-2.5">Build details</NuxtLink>
+      </div>
     </div>
+    <p class="source-note mt-6">The AWS build pipeline is not polled from this static page. Production build logs and live job progress will require an authenticated backend and server-side AWS permissions.</p>
   </div>
 </template>
