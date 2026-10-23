@@ -19,7 +19,7 @@ async function copyCommand() {
       </div>
       <dl class="grid sm:grid-cols-2 gap-5 p-5 text-[12px]">
         <div><dt class="mono muted text-[10px] mb-1">Build engine</dt><dd>AWS CodeBuild · Node.js 22</dd></div>
-        <div><dt class="mono muted text-[10px] mb-1">Build source</dt><dd>feat/nuxt-ui-first · ui/nuxt</dd></div>
+        <div><dt class="mono muted text-[10px] mb-1">Build source</dt><dd>feat/origin-integrated-workspace · ui/nuxt</dd></div>
         <div><dt class="mono muted text-[10px] mb-1">Last verified build</dt><dd>October 24, 2026 (Bangkok)</dd></div>
         <div><dt class="mono muted text-[10px] mb-1">Distribution</dt><dd>E1KJQQ9NYCQT2Y</dd></div>
       </dl>
