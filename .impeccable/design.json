@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T11:00:00.000Z",
+  "title": "Design System: Origin",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Editor ground",
+        "canonical": "#0e0e0e",
+        "tonalRamp": ["#0a0a0a", "#0e0e0e", "#161616", "#222222", "#3a3a3a", "#6a6a6a", "#b5b5b5", "#e8e8e8"]
+      },
+      "sidebar": {
+        "role": "neutral",
+        "displayName": "Sidebar",
+        "canonical": "#0a0a0a",
+        "tonalRamp": ["#050505", "#0a0a0a", "#121212", "#1c1c1c", "#2a2a2a", "#5c5c5c", "#a8a8a8", "#e8e8e8"]
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "Caret blue",
+        "canonical": "#4c9aff",
+        "tonalRamp": ["#061018", "#0c2744", "#16325c", "#1d4f91", "#2f74d0", "#4c9aff", "#79b6ff", "#d6e8ff"]
+      },
+      "pass": {
+        "role": "success",
+        "displayName": "Ready",
+        "canonical": "#3fb950",
+        "tonalRamp": ["#0d2213", "#14331c", "#1d4d2a", "#2a7a3d", "#3fb950", "#67d077", "#a6e8b0", "#e5f8e8"]
+      },
+      "fail": {
+        "role": "danger",
+        "displayName": "Failed",
+        "canonical": "#f85149",
+        "tonalRamp": ["#2a1214", "#4a1c1c", "#7a2a28", "#b53832", "#f85149", "#ff7b74", "#ffb4ae", "#ffe4e2"]
+      },
+      "wait": {
+        "role": "warning",
+        "displayName": "Waiting",
+        "canonical": "#d29922",
+        "tonalRamp": ["#2a220f", "#43350f", "#6b5314", "#9a7418", "#d29922", "#e2b34a", "#f0d48a", "#fbf3d8"]
+      }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "UI", "purpose": "Console labels and sentences." },
+      "title": { "displayName": "Title", "purpose": "The page heading inside the editor." },
+      "mono": { "displayName": "Mono", "purpose": "Ids, logs, keys, and the status bar." },
+      "status": { "displayName": "Status", "purpose": "The bottom bar." }
+    },
+    "shadows": [
+      {
+        "name": "palette",
+        "value": "0 16px 40px rgb(0 0 0 / 0.45)",
+        "purpose": "The command palette. Offset and neutral blur."
+      }
+    ],
+    "motion": [
+      {
+        "name": "palette-in",
+        "value": "140ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The palette enters already visible and moves 8px down."
+      },
+      {
+        "name": "caret",
+        "value": "1.06s steps(1, end) infinite",
+        "purpose": "The editor caret blinks. It stays solid when motion is reduced."
+      }
+    ],
+    "breakpoints": [
+      { "name": "narrow", "value": "390px" },
+      { "name": "sidebar", "value": "768px" },
+      { "name": "desktop", "value": "1440px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The action that opens the console.",
+      "html": "<button class=\"ds-btn-primary\">Open console</button>",
+      "css": ".ds-btn-primary { background: #4c9aff; color: #061018; height: 32px; padding: 0 10px; border: 0; border-radius: 0; font: 500 13px/1.45 'Public Sans', sans-serif; } .ds-btn-primary:hover { background: #79b6ff; } .ds-btn-primary:focus-visible { outline: 1px solid #e8e8e8; outline-offset: -1px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary actions on the editor surface.",
+      "html": "<button class=\"ds-btn-ghost\">Command palette</button>",
+      "css": ".ds-btn-ghost { background: #0e0e0e; color: #e8e8e8; height: 32px; padding: 0 10px; border: 1px solid #2a2a2a; border-radius: 0; font: 400 13px/1.45 'Public Sans', sans-serif; } .ds-btn-ghost:hover { background: #161616; } .ds-btn-ghost:focus-visible { outline: 1px solid #4c9aff; outline-offset: -1px; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Filters and sample names.",
+      "html": "<input class=\"ds-input\" placeholder=\"Filter sample lines\" />",
+      "css": ".ds-input { background: #0e0e0e; color: #e8e8e8; height: 32px; padding: 0 8px; border: 1px solid #2a2a2a; border-radius: 0; font: 400 13px/1.45 'Public Sans', sans-serif; caret-color: #4c9aff; } .ds-input::placeholder { color: #8b8b8b; } .ds-input:focus-visible { outline: 1px solid #4c9aff; outline-offset: -1px; }"
+    },
+    {
+      "name": "Ready mark",
+      "kind": "chip",
+      "refersTo": "button-ghost",
+      "description": "A deploy that passed.",
+      "html": "<span class=\"ds-status ds-status-ready\"><i></i>Ready</span>",
+      "css": ".ds-status { display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1.5 'JetBrains Mono', monospace; } .ds-status i { width: 6px; height: 6px; background: currentColor; } .ds-status-ready { color: #3fb950; }"
+    },
+    {
+      "name": "Activity link",
+      "kind": "nav",
+      "refersTo": "button-ghost",
+      "description": "One section in the activity rail.",
+      "html": "<a class=\"ds-rail\" href=\"/projects\">Projects</a>",
+      "css": ".ds-rail { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: #8b8b8b; text-decoration: none; font: 400 12px/1 'Public Sans', sans-serif; } .ds-rail:hover { background: #161616; color: #e8e8e8; } .ds-rail[aria-current='page'] { background: #16325c; color: #4c9aff; } .ds-rail:focus-visible { outline: 1px solid #4c9aff; outline-offset: -1px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The open session.",
+    "overview": "Origin is the console, already open. The first screen is an editor buffer named session.origin, with sample deploy output beside it and a status bar under it. The visitor does not pass through a marketing hero.",
+    "keyCharacteristics": [
+      "Charcoal editor ground, a darker rail and sidebar, and 1px hairlines.",
+      "Electric blue only for the caret, focus, selection, and the primary action.",
+      "Green, red, and amber only for deploy and log state.",
+      "Monospace for identifiers, logs, and the status bar. Public Sans for the UI.",
+      "Sharp corners. No glow, no glass, no card grid."
+    ],
+    "rules": [
+      {
+        "name": "The State Rule",
+        "body": "Color carries status. Ready is #3fb950, failed is #f85149, building and queued are #d29922. Blue is focus, not a fourth status.",
+        "section": "colors"
+      },
+      {
+        "name": "The Square Rule",
+        "body": "Corner radius is 0. Status marks are squares. Focus is a 1px inset outline in #4c9aff, and a 1px ink outline on the blue button.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do label fixtures as sample data.",
+      "Do keep the AWS Singapore plan in the future tense until an account is connected.",
+      "Do keep focus visible."
+    ],
+    "donts": [
+      "Don't print the AWS account id.",
+      "Don't invent customers, prices, or benchmarks.",
+      "Don't round the shell into cards, add glow, or cover the ground with glass."
+    ]
+  }
+}
