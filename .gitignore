@@ -45,3 +45,7 @@ __pycache__/
 *.pyc
 .venv/
 !.env.example
+
+# Neon local linkage and env
+.neon
+.env.neon

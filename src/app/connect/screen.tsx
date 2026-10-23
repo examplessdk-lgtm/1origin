@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ghostClass, PageFrame, primaryClass } from "@/components/ui";
+import { NeonStoragePanel } from "./neon-storage";
 
 type Project = { id: string; name: string; repository: string; connectionStatus: string };
 type AuthAttempt = { state: string; verifier: string; created: number };
@@ -123,6 +124,7 @@ export function ConnectScreen() {
         <button disabled={!token || busy} className={primaryClass()} type="submit">Register project</button>
       </form>
       <p role="status" aria-live="polite">{message}</p>
+      <NeonStoragePanel token={token} />
       <ul>{projects.map((project) => <li key={project.id} className="border-b border-line py-2 break-words"><strong>{project.name}</strong> · {project.repository} · {project.connectionStatus}</li>)}</ul>
       {cursor && <button disabled={busy} className={ghostClass()} onClick={() => void load(true)}>Load more</button>}
     </div>
