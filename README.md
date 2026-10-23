@@ -33,3 +33,10 @@ npm run build
 PYTHONPATH=backend python -m unittest discover -s backend/tests -v
 python scripts/render-infrastructure.py
 ```
+
+## Neon Object Storage (optional second backend)
+
+A private user file service is declared in `neon.ts` and `functions/origin-files.ts`.
+The /connect page shows a separate Neon storage panel once its function URL
+and Cognito login are configured. This does **not** replace the AWS backend.
+See `docs/neon.md` for deploy and verification. A Git push does not deploy Neon.
