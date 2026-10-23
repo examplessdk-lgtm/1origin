@@ -1,44 +1,32 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { projects as initial, statusLabels } from '~/data/demo'
-const projects = ref([...initial])
-const search = ref('')
-const open = ref(false)
-const name = ref('')
-const repository = ref('')
-const notice = ref('')
-const matching = computed(() => projects.value.filter(x => (x.name + ' ' + x.repo).toLowerCase().includes(search.value.toLowerCase())))
-function createDraft() {
-  if (!name.value.trim() || !repository.value.trim()) return
-  projects.value.unshift({ id: 'local-' + projects.value.length, name: name.value.trim(), repo: repository.value.trim(), framework: 'Unconfigured', updated: 'Just now', state: 'queued' })
-  name.value = ''; repository.value = ''; open.value = false
-  notice.value = 'Added a temporary draft in this browser. No repository or cloud project was created.'
+import { onMounted } from 'vue'
+const { state, hydrate, clearWorkspace } = useOriginWorkspace()
+onMounted(hydrate)
+function clear() {
+  if (window.confirm('Remove the imported repository and all locally saved files from this browser?')) clearWorkspace()
 }
 </script>
-<template><div class="origin-page">
-  <div class="eyebrow">WORKSPACE / PROJECTS</div>
-  <div class="flex items-end justify-between gap-4">
-    <div><h1 class="page-heading">Projects<span class="text-[#4c9aff]">.</span></h1><p class="page-subtitle">Organize repositories and deployment environments.</p></div>
-    <UButton size="sm" icon="i-lucide-plus" class="rounded-none!" @click="open = true">New draft</UButton>
+<template>
+  <div class="origin-page">
+    <div class="eyebrow">WORKSPACE / PROJECTS</div>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div><h1 class="page-heading">Projects<span class="text-white">.</span></h1>
+        <p class="page-subtitle">Repositories you have imported in this browser. No example projects or fake statuses.</p></div>
+      <NuxtLink to="/import" class="ide-primary"><UIcon name="i-lucide-folder-input" class="size-4"/>Import repository</NuxtLink>
+    </div>
+    <div v-if="state.repository" class="mt-8 border-t border-[#343434]">
+      <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_130px_120px] items-center border-b border-[#343434] py-5">
+        <div><a :href="state.repository.url" target="_blank" rel="noopener noreferrer" class="font-semibold underline underline-offset-4">{{ state.repository.fullName }} ↗</a><p class="mono muted mt-1 text-[11px]">GitHub public · {{ state.repository.branch }}</p></div>
+        <span class="mono muted text-[11px]">{{ state.files.length }} text files</span>
+        <NuxtLink to="/workspace" class="ide-action !justify-center">Open in IDE</NuxtLink>
+      </div>
+      <button class="text-[11px] muted hover:text-white underline underline-offset-4 mt-6" @click="clear">Remove this local workspace</button>
+    </div>
+    <div v-else class="mt-8 border border-[#343434] bg-[#111] px-6 py-10">
+      <UIcon name="i-lucide-folder-open" class="size-8 muted" />
+      <h2 class="text-[15px] font-semibold mt-4">No imported repository</h2>
+      <p class="muted mt-2 text-[12px]">Import a public GitHub project to inspect and edit its source locally.</p>
+      <NuxtLink to="/import" class="ide-primary inline-flex mt-5">Import GitHub repository →</NuxtLink>
+    </div>
   </div>
-  <div class="page-controls">
-    <UInput v-model="search" icon="i-lucide-search" placeholder="Filter example projects" class="w-full max-w-xs" />
-    <span class="preview-marker">DEMO DATA · {{ matching.length }}</span>
-  </div>
-  <p v-if="notice" class="source-note my-4" role="status">{{ notice }}</p>
-  <table class="data-table mt-5"><thead><tr><th>PROJECT</th><th>STATUS</th><th>FRAMEWORK</th><th>UPDATED</th></tr></thead>
-  <tbody><tr v-for="p in matching" :key="p.id">
-    <td>{{ p.name }}<div class="mono muted mt-1 text-[10px]">{{ p.repo }}</div></td>
-    <td><span :class="'status-'+p.state" class="mono inline-flex gap-1.5 items-center text-[11px]"><span class="status-dot"/>{{ statusLabels[p.state] }}</span></td>
-    <td class="mono muted">{{ p.framework }}</td><td class="mono muted">{{ p.updated }}</td>
-  </tr></tbody></table>
-  <p v-if="!matching.length" class="muted py-7">No project matches this search.</p>
-  <div class="source-note mt-7">These projects are design fixtures and do not represent connected GitHub repositories.</div>
-  <UModal v-model:open="open" title="Create a local draft" description="Preview only. This does not create a real GitHub repository.">
-    <template #body><form class="space-y-4" @submit.prevent="createDraft">
-      <label class="block">Project name<UInput v-model="name" class="mt-2 w-full" placeholder="my-application" required/></label>
-      <label class="block">Repository label<UInput v-model="repository" class="mt-2 w-full" placeholder="owner/repository" required/></label>
-      <div class="flex justify-end gap-2"><UButton variant="outline" color="neutral" @click="open = false">Cancel</UButton><UButton type="submit" :disabled="!name.trim() || !repository.trim()">Add draft</UButton></div>
-    </form></template>
-  </UModal>
-</div></template>
+</template>
