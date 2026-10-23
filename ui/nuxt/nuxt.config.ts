@@ -3,7 +3,6 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
-  ui: { colors: { primary: 'sky', neutral: 'slate' } },
   colorMode: { preference: 'dark', fallback: 'dark' },
   app: {
     head: {
