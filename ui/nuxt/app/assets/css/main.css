@@ -134,3 +134,49 @@ button { cursor: pointer; }
   --ui-text-inverted: var(--ui-color-neutral-900);
 }
 /* ORIGIN THEME — GENERATED END */
+
+
+/* ORIGIN INTEGRATED WORKSPACE — shared application components.
+ * All routes use OriginShell, Nuxt UI controls and the same theme tokens.
+ */
+.origin-ide { min-height: calc(100dvh - 76px); height:100%; display:flex; flex-direction:column; min-width:0; }
+.ide-toolbar { min-height:43px; border-bottom:1px solid var(--origin-line); display:flex; align-items:center; gap:12px; padding:0 16px; background:#101010; }
+.ide-tool { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:7px 8px; border:1px solid transparent; color:#a6a6a6; font-size:11px; text-decoration:none; }
+.ide-tool:hover, .ide-tool[aria-pressed="true"] { background:#222; color:white; border-color:#383838; }
+.ide-layout { flex:1; min-height:0; min-width:0; display:flex; position:relative; }
+.ide-explorer { flex:0 0 235px; width:235px; min-width:0; border-right:1px solid var(--origin-line); display:flex; flex-direction:column; background:#111; }
+.ide-pane-title { display:flex; align-items:center; justify-content:space-between; padding:11px 13px; min-height:43px; color:#a6a6a6; font:10px/1.5 "Geist Mono",monospace; letter-spacing:.1em; border-bottom:1px solid #2c2c2c; }
+.ide-file-list { flex:1; min-height:0; overflow:auto; }
+.ide-file { display:flex; align-items:center; width:100%; gap:8px; padding:7px 11px; text-align:left; color:#bababa; font:11px/1.4 "Geist Mono",monospace; border-left:2px solid transparent; }
+.ide-file:hover { background:#1c1c1c; color:white; }
+.ide-file.active { background:#242424; color:#fff; border-left-color:#e5e5e5; }
+.ide-pane-bottom { padding:10px 13px; color:#898989; font:10px "Geist Mono",monospace; border-top:1px solid #2a2a2a; }
+.ide-editor { min-width:0; min-height:0; flex:1; display:flex; flex-direction:column; background:#0e0e0e; }
+.ide-tabs { min-height:43px; padding:0 13px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #2a2a2a; }
+.ide-tab { display:flex; align-items:center; gap:7px; font:11px "Geist Mono",monospace; min-width:0; max-width:80%; }
+.ide-editor-content { flex:1; min-height:0; display:flex; }
+.ide-code-input { width:100%; height:100%; flex:1; resize:none; overflow:auto; border:0; outline:none; background:#101010; color:#e3e3e3; padding:20px 22px; font:12px/1.85 "Geist Mono","JetBrains Mono",monospace; tab-size:2; white-space:pre; }
+.ide-code-input:focus { outline:none; }
+.ide-empty { min-height:360px; flex:1; display:flex; flex-direction:column; gap:17px; align-items:center; justify-content:center; padding:35px; }
+.ide-state { min-height:220px; flex:1; display:flex; gap:12px; justify-content:center; align-items:center; color:#bbb; }
+.ide-editor-footer { min-height:47px; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 13px; border-top:1px solid #2a2a2a; background:#101010; }
+.ide-details { flex:0 0 225px; width:225px; border-left:1px solid #2a2a2a; background:#111; min-height:0; overflow:auto; }
+.ide-input { width:100%; min-width:0; background:#0b0b0b; border:1px solid #474747; outline:none; color:#fff; padding:8px 10px; font:12px "Geist Mono",monospace; border-radius:var(--ui-radius); }
+.ide-input:focus { border-color:#dedede; outline:1px solid #dedede; outline-offset:1px; }
+.ide-action { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid #454545; background:#171717; color:#dedede; padding:6px 9px; font:11px "Geist Mono",monospace; text-decoration:none; border-radius:var(--ui-radius); white-space:nowrap; }
+.ide-action:hover:not(:disabled) { border-color:#818181; background:#282828; }
+.ide-primary { display:inline-flex; align-items:center; justify-content:center; gap:7px; background:#efefef; color:#0a0a0a; border:1px solid #fff; padding:9px 13px; font:11px "Geist Mono",monospace; border-radius:var(--ui-radius); text-decoration:none; font-weight:600; white-space:nowrap; }
+.ide-primary:hover:not(:disabled) { background:white; }
+.ide-action:disabled, .ide-primary:disabled { cursor:not-allowed; opacity:.45; }
+.ide-notice { padding:9px 13px; font-size:11px; border-top:1px solid #353535; color:#a9c4ad; background:#101810; }
+.ide-error { color:#f29a98; background:#261616; border-color:#5d2929; }
+@media(max-width:1280px) { .ide-details { display:none; } }
+@media(max-width:690px) {
+  .ide-toolbar { padding:0 9px; }
+  .ide-explorer { position:absolute; z-index:10; top:0; bottom:0; left:0; width:min(250px,80vw); flex:0 0 min(250px,80vw); box-shadow:10px 0 26px #000a; }
+  .ide-editor { flex:1; }
+  .ide-code-input { padding:14px; font-size:11px; }
+  .ide-editor-footer { padding:6px 8px; }
+  .ide-editor-footer .ide-action { padding:5px 6px; }
+  .ide-tool-label span { display:none; }
+}
