@@ -14,7 +14,7 @@ const editorEl = ref<HTMLTextAreaElement | null>(null)
 const fileMatches = computed(() => state.value.files.filter(file => file.path.toLowerCase().includes(filter.value.toLowerCase())))
 const lines = computed(() => activeContent.value ? activeContent.value.split('\n').length : 0)
 const changedOnDisk = computed(() => !!activeFile.value && !!state.value.savedAt[activeFile.value.path])
-onMounted(hydrate)
+onMounted(() => { hydrate(); if (window.innerWidth <= 800) explorerOpen.value = false })
 
 function createFile() {
   if (addLocalFile(newFileName.value)) {
