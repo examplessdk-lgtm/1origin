@@ -29,7 +29,11 @@ const rows = computed(() => [
           { to:'/workspace', icon:'i-lucide-code-2', title:'Open IDE workspace', detail:'Browse and edit source files' },
           { to:'/import', icon:'i-lucide-folder-input', title:'Import GitHub repository', detail:'Public repository · real read-only fetch' },
           { to:'/build', icon:'i-lucide-hammer', title:'Build pipeline', detail:'View verified AWS build and operational access' },
-          { to:'/loading', icon:'i-lucide-activity', title:'Activity and loading', detail:'Current workspace activity, not simulated' }
+          { to:'/loading', icon:'i-lucide-activity', title:'Activity and loading', detail:'Current workspace activity, not simulated' },
+          { to:'/dashboard', icon:'i-lucide-blocks', title:'Dashboard', detail:'Real local workspace quick actions' },
+          { to:'/docs', icon:'i-lucide-book-open', title:'Documentation', detail:'Search Origin user guides' },
+          { to:'/chat', icon:'i-lucide-message-square-text', title:'Chat notes', detail:'Local notes thread (AI not connected)' },
+          { to:'/releases', icon:'i-lucide-git-commit-horizontal', title:'Release notes', detail:'Source-grounded change history' }
         ]" :key="item.to" :to="item.to" class="quick-item">
           <span class="flex items-center gap-3"><UIcon :name="item.icon" class="size-4"/><span><span class="block">{{ item.title }}</span><span class="text-[11px] muted">{{ item.detail }}</span></span></span>
           <UIcon name="i-lucide-chevron-right" class="size-4" />
