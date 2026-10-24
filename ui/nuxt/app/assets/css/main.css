@@ -1,15 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Geist%20Mono:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import "./origin-theme.css";
 
 :root {
   --origin-ground: #0e0e0e;
   --origin-side: #0a0a0a;
   --origin-line: #2a2a2a;
   --origin-raise: #171717;
-  --origin-muted: #909090;
-  --origin-ink: #e8e8e8;
-  --origin-focus: #e8e8e8;
+  --origin-muted: var(--color-custom-neutral-400);
+  --origin-ink: var(--color-custom-neutral-100);
+  --origin-focus: var(--color-custom-primary-400);
   --origin-good: #3fb950;
   --origin-bad: #f85149;
   --origin-wait: #d29922;
@@ -96,44 +97,9 @@ button { cursor: pointer; }
   .origin-page { padding:21px 14px 70px; }
 }
 
-/* ORIGIN THEME — GENERATED START: do not edit here */
-/*
- * Origin shared Nuxt UI tokens.
- * Single source of truth; generated into every template by scripts/sync-theme.mjs.
- * The Tailwind and @nuxt/ui imports remain owned by each original template.
- */
-@theme {
-  --font-mono: 'Geist Mono', monospace;
-}
+/* Origin single source of active UI palette: origin-theme.css */
 
-:root {
-  --ui-radius: 0.5rem;
-  --ui-primary: black;
-}
 
-:root, .light {
-  --ui-text-inverted: var(--ui-color-neutral-50);
-  --ui-bg-muted: var(--ui-color-neutral-100);
-  --ui-bg-elevated: var(--ui-color-neutral-100);
-  --ui-bg-accented: var(--ui-color-neutral-200);
-  --ui-text: var(--ui-color-neutral-900);
-  --ui-text-highlighted: var(--ui-color-neutral-950);
-  --ui-bg: var(--ui-color-neutral-50);
-}
-
-.dark {
-  --ui-bg-inverted: var(--ui-color-neutral-50);
-  --ui-border-inverted: var(--ui-color-neutral-50);
-  --ui-bg: var(--ui-color-neutral-950);
-  --ui-bg-muted: var(--ui-color-neutral-900);
-  --ui-bg-elevated: var(--ui-color-neutral-900);
-  --ui-bg-accented: var(--ui-color-neutral-800);
-  --ui-text: var(--ui-color-neutral-100);
-  --ui-text-highlighted: var(--ui-color-neutral-50);
-  --ui-primary: white;
-  --ui-text-inverted: var(--ui-color-neutral-900);
-}
-/* ORIGIN THEME — GENERATED END */
 
 
 /* ORIGIN INTEGRATED WORKSPACE — shared application components.
