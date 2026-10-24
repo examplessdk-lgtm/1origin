@@ -47,10 +47,10 @@ async function copyContent() {
 </script>
 
 <template>
-  <section class="origin-ide" aria-label="Origin integrated IDE workspace">
+  <section class="origin-ide" aria-label="Origin integrated development workspace">
     <div class="ide-toolbar">
       <div class="min-w-0 flex items-center gap-2">
-        <span class="mono text-[11px] font-semibold text-white">ORIGIN / IDE</span>
+        <span class="mono text-[11px] font-semibold text-white">ORIGIN / WORKSPACE</span>
         <span class="muted text-[11px] truncate">{{ state.repository?.fullName || 'No repository open' }}</span>
         <span v-if="state.repository" class="mono text-[10px] muted">· {{ state.repository.branch }}</span>
       </div>
