@@ -40,6 +40,9 @@ export function useOriginOperations() {
     lastRefreshedAt: 0
   }))
 
+  const logsState = useState<{ buildId: string, loading: boolean, events: { timestamp: number, message: string }[], error: string }>('origin-operator-build-logs', () => ({
+    buildId:'', loading:false, events:[], error:''
+  }))
   const latestBuild = computed(() => state.value.status?.builds?.[0] ?? null)
   const activeBuild = computed(() => state.value.status?.builds.find(build => build.status === 'IN_PROGRESS') ?? null)
   const buildCount = computed(() => state.value.status?.builds.length ?? 0)
@@ -104,11 +107,34 @@ export function useOriginOperations() {
     }
   }
 
+  async function loadLogs(accessToken: string, buildId: string): Promise<boolean> {
+    if (!import.meta.client || !accessToken || !/^[a-f0-9-]{36}$/.test(buildId)) return false
+    logsState.value.buildId = buildId
+    logsState.value.events = []
+    logsState.value.error = ''
+    logsState.value.loading = true
+    try {
+      const response = await fetch(API_BASE + '/logs?id=' + encodeURIComponent(buildId), {
+        headers:{ Authorization:'Bearer ' + accessToken, Accept:'application/json' },
+        credentials:'omit', cache:'no-store'
+      })
+      const result = await response.json().catch(() => ({})) as { error?:string, events?:{timestamp:number,message:string}[] }
+      if (!response.ok) throw new Error(result.error || 'AWS rejected logs request (HTTP ' + response.status + ').')
+      logsState.value.events = Array.isArray(result.events) ? result.events : []
+      return true
+    } catch (error) {
+      logsState.value.error = error instanceof Error ? error.message : 'Unable to load build logs.'
+      return false
+    } finally {
+      logsState.value.loading = false
+    }
+  }
+
   const formatDate = (iso?: string | null) => {
     if (!iso) return '—'
     const value = new Date(iso)
     return Number.isFinite(value.getTime()) ? value.toLocaleString() : '—'
   }
 
-  return { state, latestBuild, activeBuild, buildCount, refresh, startBuild, formatDate }
+  return { state, logsState, latestBuild, activeBuild, buildCount, refresh, startBuild, loadLogs, formatDate }
 }
