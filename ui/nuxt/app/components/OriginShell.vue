@@ -3,6 +3,9 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 const route = useRoute()
 const router = useRouter()
 const { state, hydrate } = useOriginWorkspace()
+const auth = useOriginAuth()
+const { state: authState, isSignedIn } = auth
+async function openLogin() { await auth.signIn(route.path) }
 const sidebar = ref(false)
 const palette = ref(false)
 const search = ref('')
@@ -34,7 +37,7 @@ function keydown(event: KeyboardEvent) {
   }
   if (event.key === 'Escape') { palette.value = false; sidebar.value = false }
 }
-onMounted(() => { hydrate(); window.addEventListener('keydown', keydown) })
+onMounted(() => { hydrate(); auth.hydrate(); window.addEventListener('keydown', keydown) })
 onBeforeUnmount(() => window.removeEventListener('keydown', keydown))
 watch(() => route.path, () => { sidebar.value = false })
 </script>
@@ -103,6 +106,14 @@ watch(() => route.path, () => { sidebar.value = false })
             {{ state.busy ? 'Import running' : 'Static AWS frontend' }}
           </span>
           <NuxtLink to="/import" class="mono text-[11px] border border-[#404040] px-2 py-1 hover:bg-[#232323]">Import repo</NuxtLink>
+          <button v-if="!isSignedIn" class="mono text-[11px] border border-[#404040] px-2 py-1 hover:bg-[#232323]"
+            title="Sign in with Cognito to access protected operations" @click="openLogin">
+            <UIcon name="i-lucide-log-in" class="size-3.5 inline"/> <span class="hidden sm:inline">Sign in</span>
+          </button>
+          <button v-else class="mono text-[11px] border border-[#404040] px-2 py-1 hover:bg-[#232323]"
+            :title="authState.session?.email || 'Sign out of Origin'" @click="auth.signOut">
+            <UIcon name="i-lucide-log-out" class="size-3.5 inline"/> <span class="hidden sm:inline">Sign out</span>
+          </button>
         </div>
       </header>
       <div class="page-content"><slot /></div>
