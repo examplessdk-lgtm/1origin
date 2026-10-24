@@ -1,40 +1,116 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+
 const copied = ref(false)
-const command = 'cd ui/nuxt && npm ci && npm run generate'
+const command = 'cd ui/nuxt && npm ci && npm run typecheck && npm run generate'
+const operations = useOriginOperations()
+const { state: operationsState, latestBuild, activeBuild, refresh, startBuild, formatDate } = operations
+const auth = useOriginAuth()
+const { state: authState, isSignedIn, canStartBuild } = auth
+
+let polling: ReturnType<typeof setInterval> | null = null
+onMounted(() => {
+  auth.hydrate()
+  void refresh(true)
+  polling = setInterval(() => { void refresh() }, 15000)
+})
+onBeforeUnmount(() => { if (polling) clearInterval(polling) })
+
 async function copyCommand() {
   try { await navigator.clipboard.writeText(command); copied.value = true }
   catch { copied.value = false }
 }
+
+async function requestBuild() {
+  if (!isSignedIn.value) {
+    await auth.signIn('/build')
+    return
+  }
+  if (!canStartBuild.value) {
+    operationsState.value.error = 'This account does not have Origin operator access. Contact your administrator.'
+    return
+  }
+  const yes = window.confirm('Start a REAL AWS CodeBuild run for the fixed Origin frontend? This uses paid AWS resources and may update the public CloudFront site.')
+  if (!yes) return
+  await startBuild(authState.value.session?.accessToken || '')
+}
+
+const readableStatus = (status?: string) => {
+  if (status === 'SUCCEEDED') return 'SUCCEEDED'
+  if (status === 'FAILED') return 'FAILED'
+  if (status === 'IN_PROGRESS') return 'RUNNING'
+  return status || 'NOT AVAILABLE'
+}
 </script>
+
 <template>
   <div class="origin-page">
-    <div class="eyebrow">WORKSPACE / BUILD</div>
-    <h1 class="page-heading">Build<span class="text-white">.</span></h1>
-    <p class="page-subtitle">Current AWS pipeline and verified deployment information. Builds from imported repositories are not enabled yet.</p>
-    <div class="max-w-[950px] mt-9 border border-[#363636] bg-[#111]">
+    <div class="eyebrow">OPERATIONS / AWS CODEBUILD</div>
+    <h1 class="page-heading">Build<span class="origin-accent-text">.</span></h1>
+    <p class="page-subtitle">Live AWS CodeBuild history from the Origin operations API. No simulated progress or job records.</p>
+
+    <div class="origin-module-card mt-8 max-w-[1000px] !p-0">
       <div class="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-[#303030]">
-        <div><h2 class="text-[14px] font-semibold">Origin Nuxt public UI</h2><p class="mono muted text-[11px] mt-1">origin-public-ui-build-20261024</p></div>
-        <span class="mono border border-[#45634a] text-[#93c99a] px-2 py-1 text-[10px]">LAST VERIFIED · SUCCEEDED</span>
+        <div>
+          <h2 class="font-semibold text-[14px]">Origin Nuxt frontend</h2>
+          <p class="mono muted text-[11px] mt-1">{{ operationsState.status?.project || 'Connecting to AWS…' }}</p>
+        </div>
+        <span class="origin-tag" :aria-label="'Latest build ' + readableStatus(latestBuild?.status)">
+          <UIcon :name="activeBuild ? 'i-lucide-loader-circle' : 'i-lucide-activity'" class="size-3.5"
+            :class="{'animate-spin':!!activeBuild}" />
+          {{ operationsState.loading && !operationsState.status ? 'CONNECTING' : readableStatus(latestBuild?.status) }}
+        </span>
       </div>
+
+      <div v-if="operationsState.error" class="ide-notice ide-error" role="alert">{{operationsState.error}}</div>
+      <div v-if="operationsState.notice" class="ide-notice" role="status">{{ operationsState.notice }}</div>
+
       <dl class="grid sm:grid-cols-2 gap-5 p-5 text-[12px]">
-        <div><dt class="mono muted text-[10px] mb-1">Build engine</dt><dd>AWS CodeBuild · Node.js 22</dd></div>
-        <div><dt class="mono muted text-[10px] mb-1">Build source</dt><dd>feat/origin-integrated-workspace · ui/nuxt</dd></div>
-        <div><dt class="mono muted text-[10px] mb-1">Last verified build</dt><dd>October 24, 2026 (Bangkok)</dd></div>
-        <div><dt class="mono muted text-[10px] mb-1">Distribution</dt><dd>E1KJQQ9NYCQT2Y</dd></div>
+        <div><dt class="mono muted text-[10px] mb-1">Source</dt><dd>{{operationsState.status?.source || 'Not connected'}}</dd></div>
+        <div><dt class="mono muted text-[10px] mb-1">AWS project</dt><dd class="break-all">{{ operationsState.status?.project || '—' }}</dd></div>
+        <div><dt class="mono muted text-[10px] mb-1">Last job started</dt><dd>{{ formatDate(latestBuild?.startedAt) }}</dd></div>
+        <div><dt class="mono muted text-[10px] mb-1">Status read at</dt><dd>{{ formatDate(operationsState.status?.fetchedAt) }}</dd></div>
       </dl>
+
+      <div class="p-5 border-t border-[#303030] flex gap-3 flex-wrap items-center">
+        <button class="ide-action !px-4 !py-2.5" :disabled="operationsState.loading" @click="refresh(true)">
+          <UIcon name="i-lucide-refresh-cw" class="size-4" :class="{'animate-spin':operationsState.loading}"/> Refresh live status
+        </button>
+        <button class="ide-primary" :disabled="operationsState.starting || !!activeBuild" @click="requestBuild">
+          <UIcon :name="operationsState.starting ? 'i-lucide-loader-circle':'i-lucide-play'" class="size-4" :class="{'animate-spin':operationsState.starting}"/>
+          {{ operationsState.starting ? 'Requesting AWS…' : !isSignedIn ? 'Sign in to build' : canStartBuild ? 'Start AWS Build' : 'Operator access required' }}
+        </button>
+      </div>
+      <p class="muted text-[11px] leading-6 px-5 pb-5">Only invited Cognito users in <code class="mono">origin-operators</code> can trigger a build. The action runs the fixed Origin frontend pipeline, not arbitrary imported repository code. It requires confirmation.</p>
+
       <div class="border-t border-[#303030] p-5">
-        <h3 class="text-[12px] font-semibold mb-3">Run the frontend build locally</h3>
-        <div class="flex flex-wrap items-center gap-2">
-          <code class="mono text-[11px] border border-[#333] bg-[#090909] p-3 break-all flex-1">{{ command }}</code>
-          <button class="ide-action" @click="copyCommand"><UIcon :name="copied ? 'i-lucide-check' : 'i-lucide-copy'" class="size-4"/>{{ copied ? 'Copied' : 'Copy' }}</button>
+        <h3 class="font-semibold mb-4">Recent AWS builds</h3>
+        <p v-if="!operationsState.status && operationsState.loading" class="muted text-[12px]">Reading actual AWS job history…</p>
+        <p v-else-if="operationsState.status && !operationsState.status.builds.length" class="muted text-[12px]">No builds were returned by CodeBuild.</p>
+        <div v-for="build in operationsState.status?.builds || []" :key="build.id" class="border-b border-[#303030] py-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <span class="mono text-[11px]">#{{ build.number }} <span class="muted">{{ build.id.slice(0,8) }}</span></span>
+            <span class="mono text-[11px]" :class="build.status==='FAILED'?'text-[#ffaaa8]':build.status==='SUCCEEDED'?'text-[#96dba8]':'origin-accent-text'">{{ readableStatus(build.status) }}</span>
+          </div>
+          <p class="muted text-[11px] mt-1">{{ formatDate(build.startedAt) }} · {{ build.phase || 'Completed' }}</p>
+          <div v-if="build.status==='IN_PROGRESS'" class="origin-progress-track mt-2 h-1" role="status" aria-label="AWS build is running"><div class="origin-progress-fill w-1/3 animate-pulse"/></div>
+          <div class="flex gap-2 mt-2 flex-wrap">
+            <span v-for="phase in build.phases" :key="phase.name" class="origin-tag !text-[9px]">{{ phase.name }} · {{ phase.status || 'Running' }}</span>
+          </div>
         </div>
       </div>
-      <div class="border-t border-[#303030] p-5 flex gap-3 flex-wrap">
-        <a href="https://console.aws.amazon.com/codesuite/codebuild/projects?region=ap-southeast-1" target="_blank" rel="noopener noreferrer" class="ide-primary"><UIcon name="i-lucide-external-link" class="size-4"/> Open AWS CodeBuild</a>
-        <a href="https://d1x9cuojzyjcbw.cloudfront.net/" target="_blank" rel="noopener noreferrer" class="ide-action !px-4 !py-2.5">View published website ↗</a>
+
+      <div class="border-t border-[#303030] p-5">
+        <h3 class="text-[12px] font-semibold mb-3">Reproduce frontend build locally</h3>
+        <div class="flex flex-wrap items-center gap-2">
+          <code class="origin-code flex-1 text-[11px]">{{command}}</code>
+          <button class="ide-action !p-2.5" @click="copyCommand"><UIcon :name="copied ? 'i-lucide-check' : 'i-lucide-copy'" class="size-4"/>{{ copied ? 'Copied' : 'Copy' }}</button>
+        </div>
+      </div>
+      <div class="p-5 border-t border-[#303030] flex flex-wrap gap-3">
+        <a href="https://console.aws.amazon.com/codesuite/codebuild/projects?region=ap-southeast-1" target="_blank" rel="noopener noreferrer" class="ide-action !p-2.5">AWS CodeBuild Console <UIcon name="i-lucide-external-link" class="size-4"/></a>
+        <a href="https://d1x9cuojzyjcbw.cloudfront.net/" target="_blank" rel="noopener noreferrer" class="ide-action !p-2.5">Published website <UIcon name="i-lucide-external-link" class="size-4"/></a>
       </div>
     </div>
-    <p class="source-note max-w-[950px] mt-6">This is the last verified deployment result, not a live build monitor. The UI intentionally has no fake “Build” button. Starting arbitrary repository builds requires an authenticated job API, sandbox isolation, quotas and streamed build logs.</p>
   </div>
 </template>
