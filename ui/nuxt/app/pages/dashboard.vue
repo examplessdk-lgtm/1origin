@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 const { state, hydrate } = useOriginWorkspace()
-onMounted(hydrate)
+const { state: operationsState, latestBuild, activeBuild, refresh, formatDate } = useOriginOperations()
+onMounted(() => { hydrate(); void refresh() })
 
 const localSaves = computed(() => Object.entries(state.value.savedAt)
   .map(([path, at]) => ({ path, at }))
@@ -40,7 +41,7 @@ const actions = [
   { to:'/workspace', title:'Workspace', detail:'Browse and edit local source', icon:'i-lucide-code-2' },
   { to:'/import', title:'Import Repo', detail:'Load public GitHub files', icon:'i-lucide-folder-input' },
   { to:'/progress', title:'Project Progress', detail:'Your editable task checklist', icon:'i-lucide-list-checks' },
-  { to:'/build', title:'Build', detail:'Verified AWS CodeBuild details', icon:'i-lucide-hammer' },
+  { to:'/build', title:'Build', detail:'Live AWS CodeBuild results and operator controls', icon:'i-lucide-hammer' },
   { to:'/docs', title:'Documentation', detail:'Guides and security scope', icon:'i-lucide-book-open-text' },
   { to:'/releases', title:'Release Notes', detail:'Verified platform changes', icon:'i-lucide-git-commit-horizontal' }
 ]
@@ -59,7 +60,7 @@ const actions = [
       <div class="metric"><div class="metric-label">Repository</div><div class="metric-value !text-[14px] break-words">{{ state.repository?.fullName || 'Not imported' }}</div><div class="metric-note">{{ state.repository?.branch || 'Public GitHub' }}</div></div>
       <div class="metric"><div class="metric-label">Browsable source files</div><div class="metric-value">{{ state.files.length }}</div><div class="metric-note">Text files only</div></div>
       <div class="metric"><div class="metric-label">Local saves</div><div class="metric-value">{{ Object.keys(state.savedAt).length }}</div><div class="metric-note">This browser</div></div>
-      <div class="metric"><div class="metric-label">Current operation</div><div class="metric-value !text-[16px]">{{ state.busy ? 'Reading…' : 'Idle' }}</div><div class="metric-note">No fake cloud activity</div></div>
+      <div class="metric"><div class="metric-label">AWS Build status</div><div class="metric-value !text-[16px]">{{ latestBuild?.status || (operationsState.loading ? 'Connecting…':'Unavailable') }}</div><div class="metric-note">Live CodeBuild API</div></div>
     </div>
 
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(240px,1fr)]">
@@ -75,6 +76,22 @@ const actions = [
             <p class="muted text-[11px] leading-5 mt-1">{{ action.detail }}</p>
           </NuxtLink>
         </div>
+        <section class="origin-module-card mt-5">
+          <div class="flex flex-wrap justify-between items-start gap-4">
+            <div><h2 class="section-title">Live AWS operations</h2><p class="muted text-[11px] mt-2">Read-only project history from the deployed API, never sample values.</p></div>
+            <button class="ide-action" :disabled="operationsState.loading" @click="refresh(true)">
+              <UIcon name="i-lucide-refresh-cw" class="size-4" :class="{'animate-spin':operationsState.loading}"/>Refresh
+            </button>
+          </div>
+          <p v-if="operationsState.error" class="ide-notice ide-error mt-3" role="alert">{{ operationsState.error }}</p>
+          <div v-if="latestBuild" class="mt-5 border-t border-[#303030] pt-4">
+            <p class="mono text-[12px]">Build #{{ latestBuild.number }} · {{latestBuild.status}}</p>
+            <p class="mono muted text-[10px] mt-2">{{ formatDate(latestBuild.startedAt) }} · {{ latestBuild.phase || 'Completed' }}</p>
+            <p v-if="activeBuild" class="origin-accent-text text-[11px] mt-2">AWS job running · See Build for actual phases</p>
+          </div>
+          <p v-else class="muted text-[11px] mt-4">No AWS build returned yet.</p>
+          <NuxtLink to="/build" class="ide-action !px-4 !py-2.5 mt-4">Open AWS Build history <UIcon name="i-lucide-arrow-up-right" class="size-4"/></NuxtLink>
+        </section>
         <section v-if="state.repository" class="origin-module-card mt-5">
           <h2 class="section-title">Repository utilities</h2>
           <p class="muted text-[11px] mt-2 mb-4">These actions operate on current public repository metadata, not GitHub write permissions.</p>
@@ -98,7 +115,7 @@ const actions = [
         </section>
         <section class="origin-module-card">
           <h2 class="section-title">Cloud backend boundary</h2>
-          <p class="muted text-[12px] leading-6 mt-3">The current AWS website is a public Nuxt frontend. Private GitHub, account teams, agent inference, project builds and automatic deployments are not enabled for visitors.</p>
+          <p class="muted text-[12px] leading-6 mt-3">The frontend now reads live AWS CodeBuild status through API Gateway. Starting a fixed frontend build requires Cognito operator access. Private GitHub writes, arbitrary project builds and AI inference are still unavailable.</p>
           <NuxtLink to="/docs" class="mt-4 inline-flex items-center gap-2 text-[11px] origin-accent-text underline underline-offset-4">Read security scope <UIcon name="i-lucide-arrow-up-right" class="size-3"/></NuxtLink>
         </section>
       </aside>
