@@ -7,12 +7,17 @@ const sidebar = ref(false)
 const palette = ref(false)
 const search = ref('')
 const pages = [
-  { label: 'IDE', to: '/workspace', icon: 'i-lucide-code-2', group: 'Workspace' },
+  { label: 'Workspace', to: '/workspace', icon: 'i-lucide-panels-top-left', group: 'Workspace' },
   { label: 'Overview', to: '/overview', icon: 'i-lucide-layout-dashboard', group: 'Workspace' },
+  { label: 'Dashboard', to: '/dashboard', icon: 'i-lucide-blocks', group: 'Workspace' },
   { label: 'Import Repo', to: '/import', icon: 'i-lucide-folder-input', group: 'Workspace' },
   { label: 'Projects', to: '/projects', icon: 'i-lucide-folder-git-2', group: 'Workspace' },
+  { label: 'Chat Notes', to: '/chat', icon: 'i-lucide-message-square-text', group: 'Workspace' },
   { label: 'Build', to: '/build', icon: 'i-lucide-hammer', group: 'Operations' },
-  { label: 'Loading', to: '/loading', icon: 'i-lucide-activity', group: 'Operations' }
+  { label: 'Progress', to: '/progress', icon: 'i-lucide-list-checks', group: 'Operations' },
+  { label: 'Loading', to: '/loading', icon: 'i-lucide-activity', group: 'Operations' },
+  { label: 'Docs', to: '/docs', icon: 'i-lucide-book-open', group: 'Knowledge' },
+  { label: 'Release Notes', to: '/releases', icon: 'i-lucide-git-commit-horizontal', group: 'Knowledge' }
 ]
 const selected = computed(() => pages.find(item => item.to === route.path) || pages[0]!)
 const matches = computed(() => pages.filter(item => item.label.toLowerCase().includes(search.value.trim().toLowerCase())))
@@ -38,11 +43,11 @@ watch(() => route.path, () => { sidebar.value = false })
   <div class="origin-shell">
     <a href="#origin-content" class="sr-only focus:not-sr-only">Skip to content</a>
     <nav class="activity-rail" aria-label="Quick sections">
-      <NuxtLink to="/workspace" class="rail-link" aria-label="Origin IDE">
+      <NuxtLink to="/workspace" class="rail-link" aria-label="Origin Workspace">
         <span class="mono text-[15px] font-bold tracking-[-2px] text-white">O/</span>
       </NuxtLink>
       <div class="mt-4 flex flex-col">
-        <NuxtLink v-for="page in pages" :key="page.to" :to="page.to" :title="page.label"
+        <NuxtLink v-for="page in pages.slice(0,7)" :key="page.to" :to="page.to" :title="page.label"
           :aria-label="page.label" class="rail-link" :class="{ active: route.path === page.to }">
           <UIcon :name="page.icon" class="size-[17px]" />
         </NuxtLink>
@@ -67,7 +72,7 @@ watch(() => route.path, () => { sidebar.value = false })
         </UButton>
       </div>
       <div class="min-h-0 flex-1 overflow-y-auto">
-        <template v-for="group in ['Workspace', 'Operations']" :key="group">
+        <template v-for="group in ['Workspace', 'Operations', 'Knowledge']" :key="group">
           <div class="sidebar-group">{{ group }}</div>
           <nav :aria-label="group">
             <NuxtLink v-for="page in pages.filter(item => item.group === group)" :key="page.to"
