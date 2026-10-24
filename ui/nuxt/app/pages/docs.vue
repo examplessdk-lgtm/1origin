@@ -40,9 +40,11 @@ const guides: Guide[] = [
     id: 'build',
     title: 'Build and deployment',
     category: 'Operations',
-    summary: 'How the AWS public frontend is built today.',
+    summary: 'Live AWS build status and operator-authorized frontend releases.',
     sections: [
       { heading: 'Current pipeline', body: 'The Origin Nuxt frontend runs npm ci, npm run typecheck and npm run generate using AWS CodeBuild. Successful output is uploaded to a private S3 bucket and published through CloudFront.' },
+      { heading: 'Live build status', body: 'The Build, Dashboard, Overview, Progress and Loading pages read GET /status from the Origin AWS HTTP API. The API reports CodeBuild job status, timestamps and individual phase results, without client-side AWS credentials.' },
+      { heading: 'Start build safely', body: 'POST /build requires a signed-in Cognito account that belongs to the origin-operators group. The action can rebuild only the fixed Origin frontend pipeline, not a randomly imported repository. Sign-in is invite-only for this user pool and operator access is assigned by an administrator.' },
       { heading: 'Imported projects', body: 'Arbitrary imported repositories cannot be executed or deployed from this static frontend. A secure, authenticated project-build API and sandbox are still required.' },
       { heading: 'Reproducible local build', body: 'Use the command below inside the 1origin repository. It builds the ui/nuxt frontend, not the arbitrary imported repository.' }
     ],
@@ -68,8 +70,8 @@ const guides: Guide[] = [
     summary: 'What public users can safely do in the current frontend.',
     sections: [
       { heading: 'GitHub access', body: 'Import reads only publicly accessible GitHub API endpoints, without private credentials. GitHub write operations are not enabled.' },
-      { heading: 'Cloud access', body: 'Static visitors have no AWS IAM permissions. The Build page links to the AWS Console for an already authorized account; it does not trigger any job.' },
-      { heading: 'AI and sessions', body: 'Chat is an on-device notes thread until authenticated AI messaging is implemented. There is no simulated assistant reply or hidden model invocation.' }
+      { heading: 'Cloud access', body: 'Public visitors can read sanitized AWS build status. They cannot start a build without Cognito authentication and operator group membership. Builds run under a fixed, narrowly scoped CodeBuild project.' },
+      { heading: 'AI and sessions', body: 'Chat is an on-device notes thread. The AWS Bedrock inference test was denied because the account is still being verified. Origin will not pretend an AI reply has been generated while access is unavailable.' }
     ],
     action: { label: 'Open workspace', to: '/workspace' }
   }
