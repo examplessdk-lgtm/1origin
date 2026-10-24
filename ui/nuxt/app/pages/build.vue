@@ -4,7 +4,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 const copied = ref(false)
 const command = 'cd ui/nuxt && npm ci && npm run typecheck && npm run generate'
 const operations = useOriginOperations()
-const { state: operationsState, latestBuild, activeBuild, refresh, startBuild, formatDate } = operations
+const { state: operationsState, logsState, latestBuild, activeBuild, refresh, startBuild, loadLogs, formatDate } = operations
 const auth = useOriginAuth()
 const { state: authState, isSignedIn, canStartBuild } = auth
 
@@ -19,6 +19,11 @@ onBeforeUnmount(() => { if (polling) clearInterval(polling) })
 async function copyCommand() {
   try { await navigator.clipboard.writeText(command); copied.value = true }
   catch { copied.value = false }
+}
+
+async function viewLogs(buildId: string) {
+  if (!canStartBuild.value || !authState.value.session?.accessToken) return
+  await loadLogs(authState.value.session.accessToken, buildId)
 }
 
 async function requestBuild() {
@@ -93,13 +98,25 @@ const readableStatus = (status?: string) => {
             <span class="mono text-[11px]" :class="build.status==='FAILED'?'text-[#ffaaa8]':build.status==='SUCCEEDED'?'text-[#96dba8]':'origin-accent-text'">{{ readableStatus(build.status) }}</span>
           </div>
           <p class="muted text-[11px] mt-1">{{ formatDate(build.startedAt) }} · {{ build.phase || 'Completed' }}</p>
-          <div v-if="build.status==='IN_PROGRESS'" class="origin-progress-track mt-2 h-1" role="status" aria-label="AWS build is running"><div class="origin-progress-fill w-1/3 animate-pulse"/></div>
+          <p v-if="build.status==='IN_PROGRESS'" role="status" class="mono origin-accent-text text-[10px] mt-2">Running — waiting for actual phase status (percentage not provided by AWS)</p>
+          <button v-if="canStartBuild" class="ide-action mt-2" :disabled="logsState.loading" @click="viewLogs(build.id)">
+            <UIcon name="i-lucide-scroll-text" class="size-3.5"/>View AWS logs
+          </button>
           <div class="flex gap-2 mt-2 flex-wrap">
             <span v-for="phase in build.phases" :key="phase.name" class="origin-tag !text-[9px]">{{ phase.name }} · {{ phase.status || 'Running' }}</span>
           </div>
         </div>
       </div>
 
+      <section v-if="canStartBuild && logsState.buildId" class="border-t border-[#303030] p-5">
+        <h3 class="text-[12px] font-semibold mb-2">Private CloudWatch logs · {{logsState.buildId.slice(0,8)}}</h3>
+        <p v-if="logsState.error" role="alert" class="ide-notice ide-error mt-2">{{logsState.error}}</p>
+        <p v-if="logsState.loading" class="muted text-[11px]">Reading restricted AWS log stream…</p>
+        <div v-else-if="logsState.events.length" class="origin-code max-h-[350px] overflow-y-auto mt-4 text-[10px] leading-5" aria-label="AWS build logs">
+          <pre v-for="(entry, index) in logsState.events" :key="index" class="whitespace-pre-wrap break-all">{{entry.message}}</pre>
+        </div>
+        <p v-else class="muted text-[11px] mt-2">No log messages returned yet.</p>
+      </section>
       <div class="border-t border-[#303030] p-5">
         <h3 class="text-[12px] font-semibold mb-3">Reproduce frontend build locally</h3>
         <div class="flex flex-wrap items-center gap-2">
