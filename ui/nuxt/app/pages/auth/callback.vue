@@ -1,0 +1,47 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+
+const route = useRoute()
+const { state, completeSignIn, signIn } = useOriginAuth()
+const message = ref('Verifying Cognito sign-in…')
+const success = ref(false)
+
+onMounted(async () => {
+  const code = typeof route.query.code === 'string' ? route.query.code : ''
+  const returnedState = typeof route.query.state === 'string' ? route.query.state : ''
+  const providerError = typeof route.query.error_description === 'string'
+    ? route.query.error_description
+    : typeof route.query.error === 'string' ? route.query.error : ''
+  if (providerError) { message.value = providerError; return }
+  if (!code || !returnedState) {
+    message.value = 'No valid authorization code was returned. Restart sign-in.'
+    return
+  }
+  try {
+    const destination = await completeSignIn(code, returnedState)
+    success.value = true
+    message.value = 'Sign-in complete. Opening Origin…'
+    await navigateTo(destination, { replace:true })
+  } catch (error) {
+    message.value = error instanceof Error ? error.message : 'Unable to complete sign-in.'
+  }
+})
+</script>
+
+<template>
+  <div class="origin-page max-w-[760px]">
+    <div class="eyebrow">ORIGIN / IDENTITY</div>
+    <h1 class="page-heading">Connect account<span class="origin-accent-text">.</span></h1>
+    <section class="origin-module-card mt-8">
+      <div class="flex items-center gap-3">
+        <UIcon :name="state.busy ? 'i-lucide-loader-circle' : success ? 'i-lucide-check-circle-2' : 'i-lucide-lock-keyhole'"
+          class="size-6 origin-accent-text" :class="{'animate-spin':state.busy}"/>
+        <div><h2 class="font-semibold">Amazon Cognito</h2><p role="status" class="muted text-[12px] leading-6 mt-1">{{ message }}</p></div>
+      </div>
+      <div v-if="!state.busy && !success" class="mt-6 flex flex-wrap gap-2">
+        <button class="ide-primary" @click="signIn('/build')">Try sign-in again</button>
+        <NuxtLink to="/dashboard" class="ide-action !p-2.5">Back to dashboard</NuxtLink>
+      </div>
+    </section>
+  </div>
+</template>
