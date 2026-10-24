@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 
 type Task = { id: string, title: string, done: boolean }
 const STORAGE = 'origin.personal-progress.v1'
+const { state: operationsState, latestBuild, refresh, formatDate } = useOriginOperations()
 const original: Task[] = [
   { id:'review', title:'Review the imported source files', done:false },
   { id:'edit', title:'Make and save a local code change', done:false },
@@ -15,6 +16,7 @@ const notice = ref('')
 const completed = computed(() => tasks.value.filter(task=>task.done).length)
 const percentage = computed(() => Math.round((completed.value/tasks.value.length)*100))
 onMounted(() => {
+  void refresh()
   try {
     const raw = localStorage.getItem(STORAGE)
     if (raw) {
@@ -59,6 +61,7 @@ function exportTasks() {
 }
 const verified = [
   { label:'AWS public UI hosting', state:'Verified', note:'S3 + CloudFront; October 24, 2026' },
+  { label:'Live AWS build status API', state:'Verified', note:'API Gateway + Lambda reads CodeBuild jobs directly' },
   { label:'Public GitHub repository import', state:'Verified', note:'Browser import of an official Nuxt UI repo succeeded' },
   { label:'Local file save after reload', state:'Verified', note:'Browser E2E confirmed persistence' },
   { label:'Private repositories and Commit/Push', state:'Not enabled', note:'Requires server-side authentication and GitHub App' },
@@ -100,6 +103,14 @@ const verified = [
           <div><h2 class="font-semibold text-[14px]">Platform capability snapshot</h2><p class="muted text-[11px] mt-1">Last verified · October 24, 2026</p></div>
           <span class="origin-tag">Read-only facts</span>
         </div>
+        <section class="mt-5 border border-[#303030] p-4">
+          <div class="flex flex-wrap justify-between items-center gap-3"><h3 class="text-[12px] font-semibold">Actual AWS build progress</h3><button class="ide-action" :disabled="operationsState.loading" @click="refresh(true)"><UIcon name="i-lucide-refresh-cw" class="size-3.5"/>Refresh</button></div>
+          <p v-if="operationsState.error" class="ide-notice ide-error mt-3" role="alert">{{operationsState.error}}</p>
+          <p class="mono text-[12px] mt-4">{{ latestBuild ? 'Build #'+latestBuild.number+' · '+latestBuild.status : 'No build data available' }}</p>
+          <p class="muted text-[11px] mt-2">{{ latestBuild ? formatDate(latestBuild.startedAt) : 'AWS connection not loaded' }}</p>
+          <div v-if="latestBuild" class="mt-3 flex flex-wrap gap-2"><span v-for="phase in latestBuild.phases" :key="phase.name" class="origin-tag">{{phase.name}} · {{phase.status || 'Running'}}</span></div>
+          <NuxtLink to="/build" class="mt-4 inline-flex text-[11px] origin-accent-text underline">Open AWS build details →</NuxtLink>
+        </section>
         <div class="mt-6 space-y-0">
           <div v-for="item in verified" :key="item.label" class="flex gap-3 border-t border-[#303030] py-3">
             <UIcon :name="item.state==='Verified' ? 'i-lucide-check-circle-2' : 'i-lucide-circle-dashed'" class="mt-0.5 size-4 shrink-0" :class="item.state==='Verified' ? 'origin-accent-text' : 'muted'"/>
