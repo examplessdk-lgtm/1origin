@@ -5,8 +5,8 @@ Decision: The eight repositories are implementation ingredients for ONE Origin a
 ## Canonical app
 - Deployable Nuxt app: ui/nuxt
 - Preserved source library: ui/template-library/upstream/
-- Shared theme: ui/template-library/shared/mono-neutral.css and ui/nuxt/app/assets/css/main.css
-- Public entry / opens IDE /workspace; /catalog is retired.
+- Active app single-source theme: ui/nuxt/app/assets/css/origin-theme.css, imported from main.css. Upstream template CSS snapshots are retained separately.
+- Public entry / opens Origin Workspace at /workspace; /catalog is retired.
 - No source template is exposed to users as a standalone demo, product or download.
 
 ## Eight source repositories and their integration roles
@@ -14,13 +14,13 @@ Decision: The eight repositories are implementation ingredients for ONE Origin a
 | Official repository | Role in Origin | Current integration |
 | --- | --- | --- |
 | nuxt-ui-templates/starter | Nuxt app foundation, reusable UI and responsive layout | Shared Nuxt foundation active |
-| nuxt-ui-templates/dashboard | Consistent navigation, Overview, project and operational panels | Unified shell, browser-based Overview |
+| nuxt-ui-templates/dashboard | Consistent navigation, Overview, project and operational panels | Unified shell, /dashboard and local task progress |
 | nuxt-ui-templates/editor | Authoring and editing patterns, rich-text documents | Phase 1 local plain-text code editor; upstream TipTap rich-text not yet transplanted |
-| nuxt-ui-templates/chat | Contextual AI pane, chat history and streaming | Pending authenticated backend |
-| nuxt-ui-templates/saas | Login, workspaces, account controls, roles and settings | Pending Cognito browser flow and account isolation |
+| nuxt-ui-templates/chat | Contextual conversation interface | /chat local notes and persistence active; authenticated AI streaming pending |
+| nuxt-ui-templates/saas | Workspaces, account controls, roles and settings | /dashboard local workspace actions active; real SaaS login/team features pending |
 | nuxt-ui-templates/landing | User onboarding and external product entry | Pending real user journey; root is IDE by user request |
-| nuxt-ui-templates/docs | Embedded documentation and guides | Pending grounded content and active links |
-| nuxt-ui-templates/changelog | Release and activity history | Pending verified event source |
+| nuxt-ui-templates/docs | Embedded documentation and guides | Searchable operational /docs active; full upstream docs tooling remains reference only |
+| nuxt-ui-templates/changelog | Release and activity history | Verified static /releases timeline and filters active; live event stream pending |
 
 ## Active first vertical slice
 - /workspace: select/open public GitHub source files; edit, copy, download or save within this browser.
@@ -36,7 +36,7 @@ Decision: The eight repositories are implementation ingredients for ONE Origin a
 2. Persistent remote file snapshots and explicit Commit/Push with conflict handling and audit trail.
 3. Isolated build runner, resource quotas, timeouts, job API, real build logs and deployment history.
 4. AI agent with Bedrock streaming, per-project tools and cost controls.
-5. SaaS accounts/settings, documentation, release activity and onboarding only when real data and working controls exist.
+5. SaaS accounts/settings and dynamic release feeds and onboarding only when their backend data and working controls exist.
 
 Do not present saved upstream source code as already integrated functionality. Each feature becomes active only after real behavior and E2E verification. Cloudflare DNS, other user sites and the 14-stack backend are separate workstreams.
 
