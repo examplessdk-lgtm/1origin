@@ -49,3 +49,16 @@ Rate limiting: HTTP API default stage 10 requests/sec, burst 20; start additiona
 - External GET /health and GET /status returned HTTP 200 with real CodeBuild jobs.
 - External unauthenticated POST /build returned HTTP 401 and **did not start** a build.
 - Frontend Build/typecheck and browser E2E must pass independently before public rollout.
+
+## Public frontend deployment verified
+
+- Production release CodeBuild ID: `origin-public-ui-build-20261024:4cdb55ca-9d5e-45f1-96e9-0a92ca0253ef`
+- Build status: `SUCCEEDED`; every CodeBuild phase passed; S3 sync and CloudFront invalidation completed.
+- All three relevant CloudFormation stacks are `UPDATE_COMPLETE`; CloudFront distribution is `Deployed`.
+- Exact frontend branch: `feat/origin-live-backend-20261024` (kept isolated from `main`).
+- Browser E2E verified public /build loads 12 actual AWS CodeBuild jobs (latest #13 `SUCCEEDED`), Refresh live status, no publicly exposed logs, and Sign in to build button.
+- Browser E2E verified /dashboard, /loading and /progress show matching actual AWS Build #13 phase results; no CORS/fetch errors.
+- Cognito hosted sign-in opened from Build and showed a real email/password form at the expected domain; `code_challenge_method=S256` and callback to /auth/callback were present.
+- Negative security tests: unauthenticated POST /build returned HTTP 401 with no new AWS Build; unauthenticated GET /logs returned HTTP 401 without leaking any logs.
+- Not yet E2E verified: a successful operator login and its POST /build action, because there are zero registered accounts in the existing invite-only user pool. Do not claim operator action has been used until the intended email is invited and group membership assigned.
+- Bedrock AI inference remains blocked by AWS account verification. Chat is still browser-local notes.
