@@ -39,3 +39,15 @@ Decision: The eight repositories are implementation ingredients for ONE Origin a
 5. SaaS accounts/settings, documentation, release activity and onboarding only when real data and working controls exist.
 
 Do not present saved upstream source code as already integrated functionality. Each feature becomes active only after real behavior and E2E verification. Cloudflare DNS, other user sites and the 14-stack backend are separate workstreams.
+
+
+## Shared OKLCH theme and modular feature activation — October 24, 2026
+- The custom primary and neutral scale is defined once in ui/nuxt/app/assets/css/origin-theme.css, using the 50–950 OKLCH values provided for Loading, Docs, SaaS Dashboard, Progress, Release Notes and Chat.
+- ui/nuxt/app/app.config.ts maps Nuxt UI semantic colors to custom-primary and custom-neutral. The active app imports tokens once from main.css; no duplicate per-page token styles.
+- /dashboard: real browser workspace summaries, action links, manifest export and repository URL copy. Not an authenticated SaaS team dashboard.
+- /progress: a personal editable checklist with browser persistence and export. Separately displays dated platform capability verification, not a cloud job progress simulator.
+- /docs: searchable operational guides with working route links and command copy.
+- /releases: searchable and filterable release notes linked to source evidence, not a simulated changelog feed.
+- /chat: locally saved note messages with export/delete actions; **AI chat is not connected**. No fake assistant response.
+- /loading: reflects real browser import/file-read state, no sample progress bar.
+- The authenticated agent chat, teams, private repository writes, project cloud builds and SaaS billing remain deferred until their backends pass E2E tests.
