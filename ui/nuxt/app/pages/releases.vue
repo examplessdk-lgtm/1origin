@@ -4,6 +4,18 @@ import { computed, ref } from 'vue'
 type Entry = { id:string, date:string, category:'Interface'|'Infrastructure'|'Workflow', title:string, details:string[], source?:string }
 const entries:Entry[] = [
   {
+    id:'live-aws-operations',
+    date:'2026-10-24', category:'Infrastructure',
+    title:'Live AWS operations API and Cognito-protected build controls',
+    details:[
+      'Origin reads sanitized live AWS CodeBuild status and phase history via API Gateway and Lambda.',
+      'The Build, Dashboard, Overview, Progress and Loading pages use the actual status endpoint.',
+      'Starting a fixed frontend build requires Cognito sign-in and operator group membership; there is no public write access.',
+      'Amazon Bedrock model inference is unavailable while the connected AWS account is under verification.'
+    ],
+    source:'https://github.com/examplessdk-lgtm/1origin/blob/feat/origin-live-backend-20261024/infra/aws/origin-operations-api.cloudformation.json'
+  },
+  {
     id:'integrated-workspace',
     date:'2026-10-24', category:'Interface',
     title:'Integrated Origin workspace — phase one',
