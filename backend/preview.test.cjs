@@ -64,12 +64,13 @@ test('history hides other owners and exposes preview only for successful builds'
   const owner=require('node:crypto').createHash('sha256').update('bank').digest('hex');
   const env=[{name:'OWNER_HASH',value:owner},{name:'COMMIT_SHA',value:SHA},{name:'PREVIEW_ID',value:ID}];
   const {handler}=setup({aws:async(s,op)=>op==='ListBuildsForProject'?{ids:['preview:'+ID,'preview:foreign']}:{builds:[
-    {id:'preview:'+ID,buildStatus:'SUCCEEDED',environment:{environmentVariables:env}},
+    {id:'preview:'+ID,buildStatus:'SUCCEEDED',environment:{environmentVariables:env},phases:[{phaseType:'COMPLETED'}]},
     {id:'preview:foreign',buildStatus:'SUCCEEDED',environment:{environmentVariables:[]}}
   ]}});
   const response=await handler(event('GET','/previews'));
   const data=JSON.parse(response.body);
   assert.equal(data.builds.length,1);
+  assert.equal(data.builds[0].phases[0].status,'SUCCEEDED');
   assert.equal(data.builds[0].url,'https://preview.example.com/previews/11111111-2222-4333-8444-555555555555/');
 });
 test('owned logs redact recognized credentials and use actual build log stream',async()=>{

@@ -28,7 +28,7 @@ function createHandler({ aws, project, broker, bucket, domain }) {
         const ready = build.buildStatus === 'SUCCEEDED' && UUID.test(env.PREVIEW_ID || '');
         return {id:build.id.split(':').pop(),status:build.buildStatus,commit:env.COMMIT_SHA,
           repository:REPOSITORY,branch:env.SOURCE_BRANCH,createdAt:build.startTime,
-          phases:(build.phases || []).map(p=>({name:p.phaseType,status:p.phaseStatus || 'IN_PROGRESS'})),
+          phases:(build.phases || []).map(p=>({name:p.phaseType,status:p.phaseStatus || (p.phaseType === 'COMPLETED' ? build.buildStatus : 'IN_PROGRESS')})),
           url:ready ? `https://${domain}/previews/${env.PREVIEW_ID}/` : null};
       }
       async function ownedBuild(id) {

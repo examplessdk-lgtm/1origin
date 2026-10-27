@@ -1,6 +1,6 @@
 # ONEORIGIN trusted preview pilot
 
-Status: implemented and locally verified; NOT pushed, merged, or deployed. No real preview URL exists yet.
+Status: approved preview pilot deployed and one real preview build verified. Feature branch pushed; PR #3 remains unmerged. Production frontend release was blocked by automatic approval review; the production pipeline and site remain unchanged.
 
 ## Scope
 
@@ -67,4 +67,17 @@ On rollback: revert the frontend release and remove new preview routes/stack if 
 - Nuxt typecheck exits 0, with existing vue-router Volar export warning.
 - Nuxt static generation exits 0, with existing icon download warnings in this environment.
 - AWS CloudFormation ValidateTemplate succeeds (read-only); this does not prove resource creation or IAM runtime success.
-- No real preview build, signed-in browser E2E, CloudFront asset fetch or preview resource creation has been performed.
+- User approved feature-branch push, isolated AWS pilot and one real preview build.
+- Branch `feat/trusted-preview-builds`, initial app commit `d3736956e92fe2faab7ffc6fa452d59c6d74a9ca`; PR #3 is draft and unmerged. Main remains `de8bf48206106f3f7e47cc9d74613c0d2c6c52ac`.
+- GitHub CI runs 40582653658 and 40582800454 succeeded for the initial app commit.
+- CloudFormation stack `origin-preview-pilot`: CREATE_COMPLETE.
+- Preview CodeBuild `Project-adkv63KGpsR1:1aa8c9f6-eed1-42f1-ab18-1da479b84de2`: SUCCEEDED, all execution/upload phases passed, 106 objects published. Exactly one preview build started.
+- Source pinned to initial app commit above; request ID `9c19a12e-f296-461e-9f5b-9dd677f9eb9f`.
+- Preview URL: https://d35kpxuofxch9l.cloudfront.net/previews/9c19a12e-f296-461e-9f5b-9dd677f9eb9f/
+- HTTP checks: preview root, /preview/, /preview (directory rewrite), /workspace/ and three referenced CSS/JS assets all 200; assets use correct request-specific prefix. noindex headers present.
+- Actual anonymous API GET /previews and /previews/logs return 401; CORS OPTIONS returns 204 with the existing production origin.
+- Direct Lambda runtime tests: same-subject history/logs return 200, foreign-subject logs return 404, SUCCEEDED history returns actual preview URL. These use synthetic trusted authorizer claims under administrator test invocation and do NOT establish signed-in browser JWT E2E.
+- CloudFormation UpdateStack on `origin-public-ui-codebuild-20261024` was rejected by automatic approval review: existing production build/publishing pipeline changes are outside the specifically approved isolated Preview scope. No workaround or retry was attempted. Main, production buildspec, production bucket and production CloudFront release remain unchanged. The new button exists in the feature/preview source but is not live on the original production website.
+- Preview-origin Cognito login is outside scope; do not tell the user they can log in/build from the static demo. The live creation/logs UI requires the separately approved production frontend release.
+- Runtime inspection found AWS COMPLETED phases omit phaseStatus; presentation now derives final phase status from actual buildStatus rather than displaying IN_PROGRESS. This is a metadata-only follow-up; no additional preview build is required.
+- Signed-in browser E2E has not been performed.
