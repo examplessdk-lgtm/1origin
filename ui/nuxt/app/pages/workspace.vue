@@ -48,6 +48,7 @@ async function copyContent() {
 
 <template>
   <section class="origin-ide" aria-label="Origin integrated development workspace">
+    <NuxtLink to="/preview" class="ide-action m-2 inline-flex">สร้างเว็บทดลองจากโค้ด GitHub →</NuxtLink>
     <div class="ide-toolbar">
       <div class="min-w-0 flex items-center gap-2">
         <span class="mono text-[11px] font-semibold text-white">ORIGIN / WORKSPACE</span>

@@ -50,6 +50,7 @@ const readableStatus = (status?: string) => {
 
 <template>
   <div class="origin-page">
+    <NuxtLink to="/preview" class="ide-primary mb-5 inline-flex">สร้างเว็บทดลองจาก GitHub →</NuxtLink>
     <div class="eyebrow">OPERATIONS / AWS CODEBUILD</div>
     <h1 class="page-heading">Build<span class="origin-accent-text">.</span></h1>
     <p class="page-subtitle">Live AWS CodeBuild history from the Origin operations API. No simulated progress or job records.</p>
