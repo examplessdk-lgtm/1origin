@@ -1,6 +1,8 @@
 # ONEORIGIN GitHub App import — release candidate
 
-Status: implemented and tested locally, **not pushed or deployed**.
+Status: deployed after explicit owner authorization on 2026-10-28 (Asia/Bangkok).
+Application source commit: `9a5e1ba324ebf64e25b4320f44a9623634490d1b` on
+`feat/github-app-import`. `main` was not changed.
 Base: `feat/origin-live-backend-20261024`, commit
 `71ab03774ce25d086bf0ed6de55621b7b018d944`. Working branch:
 `feat/github-app-import`.
@@ -97,7 +99,32 @@ npm run generate --prefix ui/nuxt
 
 Node 22 CI uses `--experimental-strip-types` for the frontend TypeScript client test.
 
-## Release gate — requires explicit push/deploy authorization
+## Production verification
+
+- GitHub Check run `40557102034`: success.
+- Connector stack `origin-github-import`: `CREATE_COMPLETE`.
+- Actual deployed Lambda imported the new branch: HTTP 200, 689 supported files,
+  commit `9a5e1ba324ebf64e25b4320f44a9623634490d1b`.
+- CodeBuild `origin-public-ui-build-20261024:195ef48a-5105-4c7d-b8d3-332813a0a62c`:
+  `SUCCEEDED`, including frontend tests, typecheck, static generation, backup,
+  S3 publication and CloudFront invalidation.
+- Anonymous external GET `/health`: 200. Both `/github/import` and
+  `/github/file`: 401. External `/import/`: 200, new App option present.
+- A Cognito operator account was created and its password-change status confirmed
+  before release. No password or login token was read by the implementation agent.
+- Successful signed-in browser import has not been observed; it remains a user
+  acceptance check. Direct Lambda tests do not replace it.
+- Prior root frontend objects are backed up at
+  `_origin_releases/pre-9a5e1ba3/` in the existing static bucket. Existing hashed
+  assets were retained for old browser sessions. HTML was published last.
+- The existing CodeBuild CloudFormation stack is `UPDATE_COMPLETE`; its persistent
+  BuildSpec now pins the approved application commit. A later click on Start Build
+  therefore does not silently restore the old branch. Subsequent builds back up
+  to `_origin_releases/build-$CODEBUILD_BUILD_NUMBER/`.
+- `infra/aws/origin-public-ui-codebuild.cloudformation.json` records this updated
+  Build stack. The connector and Build stack templates contain no credential values.
+
+## Future release gate
 
 1. Review this branch/diff and the new CloudFormation template.
 2. Confirm which email should be invited to the existing Cognito pool and given
