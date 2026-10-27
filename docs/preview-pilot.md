@@ -1,6 +1,6 @@
 # ONEORIGIN trusted preview pilot
 
-Status: approved preview pilot deployed and one real preview build verified. Feature branch pushed. PR #3 was independently merged through GitHub during execution (the assistant did not issue a merge command). Production frontend release was blocked by automatic approval review; the production pipeline and site remain unchanged.
+Status: preview pilot AND production creation/logs UI published after separate explicit user approvals. Feature branch pushed; no additional main merge was issued. The earlier production approval rejection is historical and was resolved by the subsequent explicit approval.
 
 ## Scope
 
@@ -84,3 +84,21 @@ On rollback: revert the frontend release and remove new preview routes/stack if 
 
 Final resource verification: preview stack UPDATE_COMPLETE; exactly one CodeBuild record exists; production index remains ETag `1dee2f9e68c9f84c073dc270756ffbef`, last modified 2026-10-28 01:13:02 Asia/Bangkok. Production buildspec still pins 9a5e1ba324ebf64e25b4320f44a9623634490d1b. Updated preview runtime returns COMPLETED=SUCCEEDED for the actual succeeded build. No production stack update was performed.
 
+## Production UI release after additional approval
+
+The user explicitly approved updating the production website/pipeline to expose the Preview/Logs interface without another merge. The previously rejected production action was then approved and executed; this was not an indirect workaround.
+
+- Updated only BuildProject.Source.BuildSpec through CloudFormation; existing IAM/resources remained unchanged. Persistent source is versioned in infra/aws/origin-public-ui-codebuild.cloudformation.json.
+- Production source is pinned to approved, CI-green commit `1fee655283e8813e5f54964036674480c7840d8b` on feat/trusted-preview-builds.
+- Production stack origin-public-ui-codebuild-20261024: UPDATE_COMPLETE.
+- Release build #15 `origin-public-ui-build-20261024:1e85b96d-fe22-409e-a7d3-5ecdbe1e6e6e`: SUCCEEDED, ended 2026-10-28 04:20:45 Asia/Bangkok.
+- Previous public files backed up (118 objects) to `_origin_releases/build-15/` in the existing production bucket. New static assets uploaded first, HTML last with no-cache, old hashed assets preserved.
+- CloudFront invalidation I5MI893EI6Q4G3PEKNC21QD551: Completed.
+- Live page: https://d1x9cuojzyjcbw.cloudfront.net/preview
+- Browser verification: existing Workspace shows the new Thai preview link; clicking it renders repository, main branch input, sign-in action and build history section. Clicking the action opens the existing Cognito email/password form with production callback and PKCE S256. No credentials were entered; returned to the published preview page.
+- Browser console observations contained extension metadata transport errors only; no app-origin error was observed in the inspected entries.
+- Signed-in browser build/logs E2E remains unverified; real source build and own/foreign log authorization were verified separately through the deployed runtime as documented above. The existing successful preview record belongs to the user's Cognito subject and should appear after their normal sign-in.
+- No additional preview build was started: the existing preview pilot job remains the one real preview test. The production UI release build is a separate publication job.
+- No new merge: main remains 7a9a9821d6f88179c8f62be651e47b49f71247cb from the earlier independent GitHub merge.
+
+Rollback can restore files from `_origin_releases/build-15/` (HTML last), invalidate the existing distribution, and restore the previous CodeBuild source pin. Do not delete old assets or retained preview resources automatically.
