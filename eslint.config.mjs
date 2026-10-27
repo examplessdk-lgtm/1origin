@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Nuxt/Vue and vendored templates are not React apps. Nuxt has its own
+    // typecheck, generation and connector tests in the Check workflow.
+    "ui/**",
   ]),
 ]);
 

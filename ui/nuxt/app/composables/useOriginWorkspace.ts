@@ -1,4 +1,5 @@
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { createGitHubImportClient } from '../utils/github-import'
 
 export type OriginRepo = {
   owner: string
@@ -6,6 +7,9 @@ export type OriginRepo = {
   fullName: string
   branch: string
   url: string
+  commitSha?: string
+  private?: boolean
+  connection?: 'github-app'
 }
 
 export type OriginFile = {
@@ -33,6 +37,11 @@ const TEXT_FILE = /\.(vue|ts|tsx|js|jsx|mjs|cjs|json|md|mdx|css|scss|html|htm|tx
 const EXACT_FILE = /(^|\/)(Dockerfile|Makefile|LICENSE|README|\.gitignore|\.env\.example)$/
 
 export function useOriginWorkspace() {
+  const auth = useOriginAuth()
+  const connected = createGitHubImportClient(() => {
+    const session = auth.state.value.session
+    return session && session.expiresAt > Date.now() + 5000 ? session.accessToken : ''
+  })
   const state = useState<WorkspaceState>('origin-integrated-workspace', () => ({
     repository: null,
     files: [],
@@ -46,6 +55,9 @@ export function useOriginWorkspace() {
   }))
 
   const activeFile = computed(() => state.value.files.find(file => file.path === state.value.activePath))
+  watch(() => auth.state.value.session, (session, previous) => {
+    if (state.value.repository?.connection === 'github-app' && (!session || (previous && previous.accessToken !== session.accessToken))) clearWorkspace()
+  })
   const activeContent = computed({
     get: () => state.value.contents[state.value.activePath] ?? '',
     set: (text: string) => {
@@ -58,6 +70,11 @@ export function useOriginWorkspace() {
   function persist() {
     if (!import.meta.client) return
     try {
+      // Connected repositories may be private. Never persist their source in browser storage.
+      if (state.value.repository?.connection === 'github-app') {
+        localStorage.removeItem(STORAGE_KEY)
+        return
+      }
       const { repository, files, activePath, contents, savedAt } = state.value
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ repository, files, activePath, contents, savedAt }))
     } catch {
@@ -73,6 +90,10 @@ export function useOriginWorkspace() {
       if (!raw) return
       const stored = JSON.parse(raw)
       if (!stored || !Array.isArray(stored.files) || typeof stored.contents !== 'object') return
+      if (stored.repository?.connection === 'github-app') {
+        localStorage.removeItem(STORAGE_KEY)
+        return
+      }
       state.value.repository = stored.repository ?? null
       state.value.files = stored.files.filter((file: OriginFile) => typeof file.path === 'string')
       state.value.activePath = typeof stored.activePath === 'string' ? stored.activePath : ''
@@ -90,12 +111,26 @@ export function useOriginWorkspace() {
     return { owner: match[1]!, name: match[2]! }
   }
 
-  async function importRepository(input: string): Promise<boolean> {
+  async function importRepository(input: string, options?: { connection: 'github-app', ref?: string }): Promise<boolean> {
     state.value.error = ''
     state.value.notice = ''
     state.value.busy = true
     try {
       const { owner, name } = parseRepository(input)
+      if (options?.connection === 'github-app') {
+        const sessionToken = auth.state.value.session?.accessToken
+        const result = await connected.importRepository(`${owner}/${name}`, options.ref)
+        if (!sessionToken || auth.state.value.session?.accessToken !== sessionToken) throw new Error('Session changed. Import again after signing in.')
+        state.value.repository = result.repository
+        state.value.files = result.files
+        state.value.contents = {}
+        state.value.savedAt = {}
+        state.value.activePath = ''
+        state.value.notice = 'Imported through the GitHub App at commit ' + result.repository.commitSha.slice(0, 12) + '. Edits stay in memory; download files to keep them.'
+        persist()
+        await openFile(result.files.find(file => /(^|\/)README\.md$/i.test(file.path))?.path || result.files[0]!.path)
+        return !state.value.error
+      }
       const url = 'https://api.github.com/repos/' + owner + '/' + name
       const metaResponse = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } })
       if (!metaResponse.ok) throw new Error(metaResponse.status === 404 ? 'Repository not found or private. Public repositories only for now.' : 'GitHub API request failed (' + metaResponse.status + ').')
@@ -146,6 +181,15 @@ export function useOriginWorkspace() {
     if (!repo) return
     state.value.busy = true
     try {
+      if (repo.connection === 'github-app') {
+        if (!repo.commitSha) throw new Error('Re-import this repository to pin its commit.')
+        const sessionToken = auth.state.value.session?.accessToken
+        const result = await connected.readFile(repo.fullName, repo.commitSha, path)
+        if (state.value.repository !== repo || !sessionToken || auth.state.value.session?.accessToken !== sessionToken) return
+        if (result.commitSha !== repo.commitSha) throw new Error('File commit did not match the workspace.')
+        state.value.contents[path] = result.content
+        return
+      }
       const response = await fetch('https://api.github.com/repos/' + repo.fullName + '/git/blobs/' + file.sha, {
         headers: { Accept: 'application/vnd.github+json' }
       })
@@ -166,7 +210,9 @@ export function useOriginWorkspace() {
     if (!state.value.activePath) return
     state.value.savedAt[state.value.activePath] = Date.now()
     persist()
-    state.value.notice = 'Saved in this browser only. GitHub was not modified.'
+    state.value.notice = state.value.repository?.connection === 'github-app'
+      ? 'Kept in this tab memory only. Download your file before closing or refreshing. GitHub was not modified.'
+      : 'Saved in this browser only. GitHub was not modified.'
   }
 
   function addLocalFile(input: string): boolean {
