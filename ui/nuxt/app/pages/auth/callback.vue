@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-const route = useRoute()
 const { state, completeSignIn, signIn } = useOriginAuth()
 const message = ref('Verifying Cognito sign-in…')
 const success = ref(false)
 
 onMounted(async () => {
-  const code = typeof route.query.code === 'string' ? route.query.code : ''
-  const returnedState = typeof route.query.state === 'string' ? route.query.state : ''
-  const providerError = typeof route.query.error_description === 'string'
-    ? route.query.error_description
-    : typeof route.query.error === 'string' ? route.query.error : ''
+  // Static Nuxt hydration can mount before useRoute().query reflects the browser URL.
+  // OAuth callback parameters must come from the actual returned URL; never log them.
+  const query = new URLSearchParams(window.location.search)
+  const code = query.get('code') || ''
+  const returnedState = query.get('state') || ''
+  const providerError = query.get('error_description') || query.get('error') || ''
   if (providerError) { message.value = providerError; return }
   if (!code || !returnedState) {
     message.value = 'No valid authorization code was returned. Restart sign-in.'
