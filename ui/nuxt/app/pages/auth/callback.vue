@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 const { state, completeSignIn, signIn } = useOriginAuth()
 const message = ref('Verifying Cognito sign-in…')
 const success = ref(false)
 
-onMounted(async () => {
-  // Static Nuxt hydration can mount before useRoute().query reflects the browser URL.
+onNuxtReady(async () => {
+  // Prerender hydration temporarily replaces even window.location with the static path.
+  // Wait for Nuxt to restore the returned URL before parsing OAuth parameters.
   // OAuth callback parameters must come from the actual returned URL; never log them.
   const query = new URLSearchParams(window.location.search)
   const code = query.get('code') || ''

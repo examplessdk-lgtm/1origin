@@ -10,15 +10,19 @@ async function mountCallback(search) {
   const source=readFileSync(new URL('../app/pages/auth/callback.vue',import.meta.url),'utf8');
   const script=source.match(/<script setup lang="ts">([\s\S]*?)<\/script>/)[1];
   const compiled=ts.transpileModule(script,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-  const mounts=[],exchanges=[],navigations=[],messages=[];
-  const context={exports:{},URLSearchParams,window:{location:{search}},
+  const mounts=[],ready=[],exchanges=[],navigations=[],messages=[];
+  const context={exports:{},URLSearchParams,window:{location:{search:''}},
+    onNuxtReady:fn=>ready.push(fn),
     require(name){assert.equal(name,'vue');return {onMounted:fn=>mounts.push(fn),ref:value=>{const ref={value};messages.push(ref);return ref}}},
     useRoute:()=>({query:{}}),
     useOriginAuth:()=>({state:{},signIn:()=>{},completeSignIn:async(code,state)=>{exchanges.push({code,state});return '/preview'}}),
     navigateTo:async(path,options)=>navigations.push({path,replace:options.replace})};
   vm.runInNewContext(compiled,context);
-  assert.equal(mounts.length,1);
-  await mounts[0]();
+  // Nuxt's prerendered route temporarily replaces the URL while hydrating,
+  // then restores it on app:suspense:resolve (before onNuxtReady callbacks).
+  for (const fn of mounts) await fn();
+  context.window.location.search=search;
+  for (const fn of ready) await fn();
   return {exchanges,navigations,messages:messages.map(x=>x.value)};
 }
 test('callback uses returned URL even before Nuxt router query hydration',async()=>{
